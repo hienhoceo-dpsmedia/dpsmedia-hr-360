@@ -19,7 +19,7 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onCategoryCl
 
   const renderTable = (title: string, data: AggregatedMetrics[], scoreKey: keyof AggregatedMetrics, color: string, drillDownMetric: keyof AggregatedMetrics) => {
     // Sort descending
-    const sorted = [...data].sort((a, b) => (b[scoreKey] as number) - (a[scoreKey] as number)).slice(0, 5);
+    const sorted = [...data].sort((a, b) => (b[scoreKey] as number) - (a[scoreKey] as number));
 
     return (
       <div className="glass-panel rounded-2xl overflow-hidden flex flex-col hover:border-white/20 transition-all duration-300 h-full">
@@ -33,7 +33,7 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onCategoryCl
           </div>
           <p className="text-xs text-slate-500 mt-1">Bấm để xem bảng xếp hạng chi tiết</p>
         </div>
-        <div className="overflow-x-auto flex-1">
+        <div className="overflow-x-auto flex-1 max-h-[600px] overflow-y-auto custom-scrollbar">
           <table className="w-full text-sm text-left">
             <thead className="text-xs uppercase text-slate-500 bg-white/5">
               <tr>
@@ -85,7 +85,7 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onCategoryCl
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {renderTable("Availability (Cat A)", metrics, "cat_a_score", "text-emerald-400", "available_minutes")}
         {renderTable("Performance (Cat P)", metrics, "cat_p_score", "text-sky-400", "total_tasks_done")}
-        {renderTable("Quality (Cat Q)", metrics, "cat_q_score", "text-purple-400", "learning_points")}
+        {renderTable("Quality (Cat Q)", metrics, "cat_q_score", "text-purple-400", "diem_hoc_tap" as any)}
       </div>
 
       {/* Scoring Formulas Section */}
