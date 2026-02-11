@@ -81,10 +81,26 @@ export const fetchAggregatedMetrics = async (range: DateRange): Promise<Aggregat
     const totalSalary = staffReport.reduce((sum, r) => sum + (r.salary || 0), 0);
     const totalMessages = totalTeamChats + totalPrivateChats + totalReplies;
 
-    // Scoring Logic (Tweak targets as needed)
-    const scoreA = Math.min(100, Math.round((totalMinutes / 8000) * 100)); // 133h target
-    const scoreP = Math.min(100, Math.round(((totalTasks * 5 + totalMessages) / 1500) * 100));
-    const scoreQ = Math.min(100, Math.round((totalLearning / 50) * 100));
+    // Scoring Logic (Balanced Model)
+    // Category A: Presence (70%) + Critical Meetings (30%)
+    const scoreA = Math.min(100, Math.round(
+      (totalMinutes / 8000 * 70) +
+      (totalWeeklyMeetings / 4 * 30)
+    ));
+
+    // Category P: Tasks (50%) + Communication (30%) + Engagement (20%)
+    const scoreP = Math.min(100, Math.round(
+      (totalTasks / 40 * 50) +
+      (totalMessages / 500 * 30) +
+      (totalMeetings / 10 * 20)
+    ));
+
+    // Category Q: Growth (40%) + Innovation (40%) + Culture (20%)
+    const scoreQ = Math.min(100, Math.round(
+      ((totalLearning + totalTraining) / 30 * 40) +
+      ((totalInnovation * 10 + totalCreative) / 30 * 40) +
+      ((totalHelloHub + totalHallOfFame) / 10 * 20)
+    ));
 
     // Generate Daily Presence (Heatmap)
     const dailyPresence: DailyPresence[] = eachDayOfInterval({ start: range.startDate, end: range.endDate }).map(day => {
