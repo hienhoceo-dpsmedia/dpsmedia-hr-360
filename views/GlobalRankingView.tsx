@@ -156,7 +156,7 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
   const handleCopyData = () => {
     const header = `Rank\tName\tDepartment\t${currentOption.label}\tUnit`;
     const rows = sortedData.map((item, index) =>
-      `${index + 1}\t${item.name}\t${item.department}\t${item[selectedMetric]}\t${currentOption.unit}`
+      `${index + 1}\t${item.staffName}\t${item.department}\t${item[selectedMetric]}\t${currentOption.unit}`
     );
     const content = [header, ...rows].join('\n');
 
