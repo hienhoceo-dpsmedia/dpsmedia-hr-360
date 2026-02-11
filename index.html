@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HR 360 Dashboard | dps.media</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              background: 'var(--bg-color)', 
+              surface: 'var(--surface-color)',    
+              primary: '#00d26a',    
+              secondary: '#6c5ce7', 
+            },
+            fontFamily: {
+              sans: ['Outfit', 'sans-serif'],
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-out',
+              'pulse-glow': 'pulseGlow 2s infinite',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              pulseGlow: {
+                '0%, 100%': { boxShadow: '0 0 10px rgba(0, 210, 106, 0.5)' },
+                '50%': { boxShadow: '0 0 20px rgba(0, 210, 106, 0.8)' },
+              }
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      :root {
+        /* PREMIUM LIGHT MODE */
+        --bg-color: #f8fafc; /* Slate 50 - Soft, premium grey-white */
+        --surface-color: #ffffff;
+        --text-primary: #0f172a; /* Slate 900 - Sharp contrast */
+        --glass-border: rgba(255, 255, 255, 0.6);
+        --glass-bg: rgba(255, 255, 255, 0.7);
+        --glass-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01); /* Soft, deep shadow */
+      }
+
+      .dark {
+        /* SCI-FI DARK MODE */
+        --bg-color: #0a0e17;
+        --surface-color: #1e293b;
+        --text-primary: #f8fafc;
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+      }
+
+      body {
+        background: var(--bg-color);
+        color: var(--text-primary);
+        min-height: 100vh;
+        transition: background-color 0.4s ease, color 0.4s ease;
+      }
+      
+      /* Glassmorphism Utilities */
+      .glass {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--glass-shadow);
+      }
+      
+      .glass-panel {
+        background: var(--glass-bg);
+        backdrop-filter: blur(24px); /* Higher blur for premium feel */
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--glass-shadow);
+        transition: all 0.3s ease;
+      }
+
+      /* Light mode specific tweak for panels to look like "Floating Cards" */
+      html:not(.dark) .glass-panel {
+        background: rgba(255, 255, 255, 0.85); /* Milky white */
+        border: 1px solid rgba(226, 232, 240, 0.6); /* Very subtle border */
+      }
+
+      .glass-sidebar {
+        background: var(--surface-color);
+        opacity: 0.98;
+        backdrop-filter: blur(20px);
+        border-right: 1px solid var(--glass-border);
+        box-shadow: 4px 0 24px rgba(0,0,0,0.02);
+      }
+      
+      .dark .glass-sidebar {
+        background: rgba(15, 23, 42, 0.85);
+        box-shadow: none;
+      }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(100, 116, 139, 0.5); 
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(100, 116, 139, 0.8); 
+      }
+      
+      /* Utilities */
+      .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react/": "https://esm.sh/react@18.3.1/",
+    "react-dom": "https://esm.sh/react-dom@18.3.1",
+    "react-dom/": "https://esm.sh/react-dom@18.3.1/",
+    "recharts": "https://esm.sh/recharts@2.15.0?external=react,react-dom",
+    "lucide-react": "https://esm.sh/lucide-react@0.330.0?external=react,react-dom",
+    "html2canvas": "https://esm.sh/html2canvas@1.4.1"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
