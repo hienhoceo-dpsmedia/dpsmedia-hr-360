@@ -131,18 +131,18 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onCategoryCl
               <span className="uppercase tracking-wider">CATEGORY A</span>
             </div>
             <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-300">Online (vs Avg)</span>
+              <div className="flex justify-between text-[10px]">
+                <span className="text-slate-300">Online Minutes</span>
                 <span className="font-bold text-white">70%</span>
               </div>
-              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
                 <div className="bg-emerald-500 h-full w-[70%]"></div>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-300">Họp Weekly (T3)</span>
+              <div className="flex justify-between text-[10px]">
+                <span className="text-slate-300">Weekly Meeting (T3)</span>
                 <span className="font-bold text-white">30%</span>
               </div>
-              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
                 <div className="bg-emerald-500 h-full w-[30%]"></div>
               </div>
             </div>
@@ -155,25 +155,25 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onCategoryCl
               <span className="uppercase tracking-wider">CATEGORY P</span>
             </div>
             <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
-              <div className="flex justify-between text-xs">
+              <div className="flex justify-between text-[10px]">
                 <span className="text-slate-300">Năng suất (Tasks)</span>
                 <span className="font-bold text-white">50%</span>
               </div>
-              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
                 <div className="bg-sky-500 h-full w-[50%]"></div>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-300">Giao tiếp (Messages)</span>
+              <div className="flex justify-between text-[10px]">
+                <span className="text-slate-300">Messages (Team/Private/Reply)</span>
                 <span className="font-bold text-white">30%</span>
               </div>
-              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
                 <div className="bg-sky-500 h-full w-[30%]"></div>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-300">Gắn kết (Meetings)</span>
+              <div className="flex justify-between text-[10px]">
+                <span className="text-slate-300">Gắn kết (Họp/Engagement)</span>
                 <span className="font-bold text-white">20%</span>
               </div>
-              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
                 <div className="bg-sky-500 h-full w-[20%]"></div>
               </div>
             </div>
@@ -185,27 +185,35 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onCategoryCl
               <Star size={18} />
               <span className="uppercase tracking-wider">CATEGORY Q</span>
             </div>
-            <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-300">Cầu tiến (Learning)</span>
-                <span className="font-bold text-white">40%</span>
+            <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-4">
+              <div className="space-y-2">
+                <div className="flex justify-between text-[10px]">
+                  <span className="text-slate-300">Cầu tiến (Learning + Training)</span>
+                  <span className="font-bold text-white">40%</span>
+                </div>
+                <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+                  <div className="bg-purple-500 h-full w-[40%]"></div>
+                </div>
               </div>
-              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-purple-500 h-full w-[40%]"></div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between text-[10px]">
+                  <span className="text-slate-300 italic">Sáng tạo (Lab * 10 + Creative)</span>
+                  <span className="font-bold text-white">40%</span>
+                </div>
+                <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+                  <div className="bg-purple-500 h-full w-[40%]"></div>
+                </div>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-300">Sáng tạo (Innovation)</span>
-                <span className="font-bold text-white">40%</span>
-              </div>
-              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-purple-500 h-full w-[40%]"></div>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-300">Văn hóa (Kudos/Posts)</span>
-                <span className="font-bold text-white">20%</span>
-              </div>
-              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-purple-500 h-full w-[20%]"></div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between text-[10px]">
+                  <span className="text-slate-300">Văn hóa (Hello Hub + Hall)</span>
+                  <span className="font-bold text-white">20%</span>
+                </div>
+                <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+                  <div className="bg-purple-500 h-full w-[20%]"></div>
+                </div>
               </div>
             </div>
           </div>
