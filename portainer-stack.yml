@@ -5,14 +5,16 @@ services:
     image: ghcr.io/hienhoceo-dpsmedia/dpsmedia-hr-360:latest
     container_name: dps-hr-dashboard
     restart: always
-    ports:
-      - "6001:80"
     environment:
       - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
       - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
     networks:
       - hr-network
+      - npm_network
 
 networks:
   hr-network:
     driver: bridge
+  npm_network:
+    external: true
+    name: nginx-proxy-manager_default
