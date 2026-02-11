@@ -197,7 +197,8 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
               <option value="reply_messages" className="bg-slate-900 text-white">Reply Messages</option>
               <option value="weekly_meeting_attendance" className="bg-slate-900 text-white">Meeting Count</option>
             </optgroup>
-            <optgroup label="Category Q (Quality)" className="bg-slate-900 text-slate-400 font-semibold py-1">
+            <optgroup label="Tư duy & Kỹ năng (Category Q)" className="bg-slate-900 text-slate-400 font-semibold py-1">
+              <option value="cat_q_score" className="bg-slate-900 text-purple-400 font-bold">★ Điểm Tổng CAT Q</option>
               <option value="learning_points" className="bg-slate-900 text-white">Learning Points</option>
               <option value="training_points" className="bg-slate-900 text-white">Training Points</option>
               <option value="creative_points" className="bg-slate-900 text-white">Creative Points</option>
@@ -243,7 +244,7 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
 
             <button
               onClick={handleCopyData}
-              className="flex items-center gap-3 py-2 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-500/50 transition-all group min-w-[160px]"
+              className="flex items-center gap-3 py-2 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 border-emerald-500/50 transition-all group min-w-[160px]"
             >
               {copied ? (
                 <Check className="text-emerald-500 group-hover:scale-110 transition-transform" size={18} />
@@ -262,7 +263,16 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
         <div className="space-y-4">
           {sortedData.map((item, index) => {
             const value = item[selectedMetric] as number;
-            const percentage = (value / maxValue) * 100;
+
+            // Handle percentage for 1-5 scale vs raw metrics
+            let percentage = 0;
+            const isScore = selectedMetric.includes('score');
+            if (isScore) {
+              percentage = (value / 5) * 100;
+            } else {
+              percentage = (value / maxValue) * 100;
+            }
+
             const option = rankingOptions.find(o => o.key === selectedMetric);
 
             return (
@@ -288,13 +298,16 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
                 {/* Bar Chart */}
                 <div className="flex-1 h-8 bg-slate-800/50 rounded-full overflow-hidden relative">
                   <div
-                    className="h-full bg-gradient-to-r from-blue-600 to-primary rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2"
+                    className={`h-full bg-gradient-to-r ${isScore ? 'from-primary to-emerald-400' : 'from-blue-600 to-primary'} rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2`}
                     style={{ width: `${percentage}%` }}
                   >
                   </div>
                   {/* Value inside bar or outside depending on width - simplifying to absolute right for aesthetics */}
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-white drop-shadow-md">
-                    {value.toLocaleString()} <span className="text-[10px] font-normal opacity-80">{option?.unit}</span>
+                    {isScore ? value.toFixed(1) : value.toLocaleString()}
+                    <span className="text-[10px] font-normal opacity-80 ml-1">
+                      {isScore ? '/ 5.0' : option?.unit}
+                    </span>
                   </div>
                 </div>
               </div>

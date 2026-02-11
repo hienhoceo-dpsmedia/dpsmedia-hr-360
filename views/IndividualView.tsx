@@ -40,9 +40,9 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
   };
 
   const radarData = [
-    { subject: 'Availability', A: currentMetrics.cat_a_score, fullMark: 100 },
-    { subject: 'Performance', A: currentMetrics.cat_p_score, fullMark: 100 },
-    { subject: 'Quality', A: currentMetrics.cat_q_score, fullMark: 100 },
+    { subject: 'Availability', A: currentMetrics.cat_a_score, fullMark: 5 },
+    { subject: 'Performance', A: currentMetrics.cat_p_score, fullMark: 5 },
+    { subject: 'Quality', A: currentMetrics.cat_q_score, fullMark: 5 },
   ];
 
   const handleExport = () => {
@@ -102,7 +102,7 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
         <div className="lg:col-span-4 glass-panel p-6 rounded-2xl flex flex-col items-center justify-center relative">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 self-start flex items-center gap-2">
             360° Assessment
-            <span title="Score is normalized against company benchmarks." className="flex items-center cursor-help">
+            <span title="Score is normalized against company benchmarks (Avg = 3.0)" className="flex items-center cursor-help">
               <HelpCircle size={14} className="text-slate-500" />
             </span>
           </h3>
@@ -114,7 +114,7 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
                   dataKey="subject"
                   tick={{ fill: chartColors.text, fontSize: 12, fontWeight: 600, opacity: 0.8 }}
                 />
-                <PolarRadiusAxis angle={90} domain={[0, 100]} tick={false} axisLine={false} />
+                <PolarRadiusAxis angle={90} domain={[0, 5]} tick={false} axisLine={false} />
                 <Radar
                   name={currentMetrics.staffName}
                   dataKey="A"
@@ -124,6 +124,7 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
                   fillOpacity={0.3}
                 />
                 <Tooltip
+                  formatter={(value: number) => [`${value.toFixed(1)} / 5.0`, 'Score']}
                   contentStyle={{
                     backgroundColor: chartColors.tooltipBg,
                     borderColor: chartColors.tooltipBorder,
@@ -140,14 +141,17 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
           {/* Total Score Summary */}
           <div className="flex justify-between w-full px-4 pt-4 border-t border-slate-200 dark:border-white/10">
             <div className="text-center">
-              <p className="text-xs text-slate-500 uppercase">Overall</p>
-              <p className="text-xl font-bold text-slate-900 dark:text-white">
-                {Math.round((currentMetrics.cat_a_score + currentMetrics.cat_p_score + currentMetrics.cat_q_score) / 3)}
+              <p className="text-xs text-slate-500 uppercase">Overall Rating</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                {((currentMetrics.cat_a_score + currentMetrics.cat_p_score + currentMetrics.cat_q_score) / 3).toFixed(1)}
+                <span className="text-xs opacity-40 ml-1">/ 5.0</span>
               </p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-slate-500 uppercase">Rank</p>
-              <p className="text-xl font-bold text-yellow-500 dark:text-yellow-400">Top 10%</p>
+              <p className="text-xs text-slate-500 uppercase">Performance</p>
+              <div className="flex items-center gap-1 justify-center">
+                <p className="text-xl font-bold text-primary">Good</p>
+              </div>
             </div>
           </div>
         </div>
@@ -171,9 +175,9 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
               <ActivityHeatmap data={currentMetrics.activity_heatmap} />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <KPICard
-                title="Total Hours"
+                title="Total Online"
                 value={currentMetrics.available_minutes}
                 isTime={true}
                 subValue="mins"
@@ -182,7 +186,7 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
               />
               <KPICard title="Meeting Attendance" value={currentMetrics.weekly_meeting_attendance} />
               <KPICard title="Weekly Meeting" value={currentMetrics.weekly_meeting_count} />
-              <KPICard title="Category Score" value={currentMetrics.cat_a_score} subValue="/100" />
+              <KPICard title="Category Score" value={currentMetrics.cat_a_score.toFixed(1)} subValue="/ 5.0" />
             </div>
           </div>
 
@@ -195,7 +199,7 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <KPICard title="Tasks Completed" value={currentMetrics.total_tasks_done} growth={currentMetrics.mom_growth_p} />
               <KPICard title="Messages Sent" value={currentMetrics.total_messages} />
-              <KPICard title="Category Score" value={currentMetrics.cat_p_score} subValue="/100" />
+              <KPICard title="Category Score" value={currentMetrics.cat_p_score.toFixed(1)} subValue="/ 5.0" />
             </div>
           </div>
 
@@ -205,11 +209,10 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
               <div className="w-1 h-6 bg-purple-500 rounded-full"></div>
               <h4 className="text-lg font-bold text-slate-900 dark:text-white">Quality & Innovation</h4>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <KPICard title="Điểm Học Tập" value={currentMetrics.learning_points} colorClass="text-purple-400" />
-              <KPICard title="Điểm Sáng Tạo" value={currentMetrics.creative_points} growth={currentMetrics.mom_growth_q} colorClass="text-purple-400" />
-              <KPICard title="Innovation Lab" value={currentMetrics.innovation_lab_ideas} colorClass="text-purple-400" />
-              <KPICard title="Điểm Rèn Luyện" value={currentMetrics.training_points} colorClass="text-purple-400" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <KPICard title="Growth Points" value={currentMetrics.learning_points + currentMetrics.training_points} colorClass="text-purple-400" />
+              <KPICard title="Innovation Ideas" value={currentMetrics.innovation_lab_ideas} colorClass="text-purple-400" />
+              <KPICard title="Category Score" value={currentMetrics.cat_q_score.toFixed(1)} subValue="/ 5.0" />
             </div>
           </div>
 

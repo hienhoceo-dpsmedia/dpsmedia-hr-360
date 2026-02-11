@@ -60,67 +60,78 @@ export const fetchAggregatedMetrics = async (range: DateRange): Promise<Aggregat
 
   const staffList = await fetchStaffList();
 
-  return staffList.map(staff => {
+  // 1. Calculate raw totals for each staff member
+  const rawData = staffList.map(staff => {
     const staffEmail = normalize(staff.lark_email);
     const staffReport = reportData?.filter(r => normalize(r.lark_email) === staffEmail) || [];
 
-    // Aggregates
-    const totalTasks = staffReport.reduce((sum, r) => sum + (r.tasks_done || 0), 0);
-    const totalMeetings = staffReport.reduce((sum, r) => sum + (r.meeting_count || 0), 0);
-    const totalWeeklyMeetings = staffReport.reduce((sum, r) => sum + (r.weekly_meeting_count || 0), 0);
-    const totalMinutes = staffReport.reduce((sum, r) => sum + (r.available_minutes || 0), 0);
-    const totalLearning = staffReport.reduce((sum, r) => sum + (r.learning_points || 0), 0);
-    const totalCreative = staffReport.reduce((sum, r) => sum + (r.creative_points || 0), 0);
-    const totalTraining = staffReport.reduce((sum, r) => sum + (r.training_points || 0), 0);
-    const totalHelloHub = staffReport.reduce((sum, r) => sum + (r.hello_hub || 0), 0);
-    const totalHallOfFame = staffReport.reduce((sum, r) => sum + (r.hall_of_fame || 0), 0);
-    const totalTeamChats = staffReport.reduce((sum, r) => sum + (r.team_chat || 0), 0);
-    const totalPrivateChats = staffReport.reduce((sum, r) => sum + (r.private_chat || 0), 0);
-    const totalReplies = staffReport.reduce((sum, r) => sum + (r.reply_messages || 0), 0);
-    const totalInnovation = staffReport.reduce((sum, r) => sum + (r.innovation_lab || 0), 0);
-    const totalSalary = staffReport.reduce((sum, r) => sum + (r.salary || 0), 0);
-    const totalMessages = totalTeamChats + totalPrivateChats + totalReplies;
+    return {
+      staff,
+      report: staffReport,
+      totals: {
+        tasks: staffReport.reduce((sum, r) => sum + (r.tasks_done || 0), 0),
+        meetings: staffReport.reduce((sum, r) => sum + (r.meeting_count || 0), 0),
+        weeklyMeetings: staffReport.reduce((sum, r) => sum + (r.weekly_meeting_count || 0), 0),
+        minutes: staffReport.reduce((sum, r) => sum + (r.available_minutes || 0), 0),
+        learning: staffReport.reduce((sum, r) => sum + (r.learning_points || 0), 0),
+        creative: staffReport.reduce((sum, r) => sum + (r.creative_points || 0), 0),
+        training: staffReport.reduce((sum, r) => sum + (r.training_points || 0), 0),
+        helloHub: staffReport.reduce((sum, r) => sum + (r.hello_hub || 0), 0),
+        hallOfFame: staffReport.reduce((sum, r) => sum + (r.hall_of_fame || 0), 0),
+        teamChat: staffReport.reduce((sum, r) => sum + (r.team_chat || 0), 0),
+        privateChat: staffReport.reduce((sum, r) => sum + (r.private_chat || 0), 0),
+        replies: staffReport.reduce((sum, r) => sum + (r.reply_messages || 0), 0),
+        innovation: staffReport.reduce((sum, r) => sum + (r.innovation_lab || 0), 0),
+        messages: 0 // placeholder
+      }
+    };
+  });
 
-    // Calculate dynamic targets based on date range duration
-    const diffTime = Math.abs(range.endDate.getTime() - range.startDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-    // Assume a standard month has 22 work days
-    const scale = Math.max(0.05, diffDays / 22);
+  rawData.forEach(item => {
+    item.totals.messages = item.totals.teamChat + item.totals.privateChat + item.totals.replies;
+  });
 
-    // Dynamic targets
-    const targetMinutes = 8000 * scale;
-    const targetWeeklyMeetings = 4 * scale;
-    const targetTasks = 40 * scale;
-    const targetMessages = 500 * scale;
-    const targetMeetings = 10 * scale;
-    const targetGrowth = 30 * scale; // For Q
-    const targetCulture = 10 * scale; // For Q
+  // 2. Calculate Company-Wide Averages
+  const n = rawData.length || 1;
+  const companyAvg = {
+    minutes: rawData.reduce((sum, d) => sum + d.totals.minutes, 0) / n,
+    weeklyMeetings: rawData.reduce((sum, d) => sum + d.totals.weeklyMeetings, 0) / n,
+    tasks: rawData.reduce((sum, d) => sum + d.totals.tasks, 0) / n,
+    messages: rawData.reduce((sum, d) => sum + d.totals.messages, 0) / n,
+    meetings: rawData.reduce((sum, d) => sum + d.totals.meetings, 0) / n,
+    growth: rawData.reduce((sum, d) => sum + (d.totals.learning + d.totals.training), 0) / n,
+    innovation: rawData.reduce((sum, d) => sum + (d.totals.innovation * 10 + d.totals.creative), 0) / n,
+    culture: rawData.reduce((sum, d) => sum + (d.totals.helloHub + d.totals.hallOfFame), 0) / n,
+  };
 
-    // Scoring Logic (Balanced Model)
-    // Category A: Presence (70%) + Critical Meetings (30%)
-    const scoreA = Math.min(100, Math.round(
-      (totalMinutes / targetMinutes * 70) +
-      (totalWeeklyMeetings / targetWeeklyMeetings * 30)
-    ));
+  // Helper to calculate 1-5 score: (Value / Avg) * 3, capped at 5
+  const calcRelativeScore = (val: number, avg: number) => {
+    if (avg <= 0) return val > 0 ? 3.0 : 0.0;
+    return Math.min(5.0, Number(((val / avg) * 3.0).toFixed(1)));
+  };
 
-    // Category P: Tasks (50%) + Communication (30%) + Engagement (20%)
-    const scoreP = Math.min(100, Math.round(
-      (totalTasks / targetTasks * 50) +
-      (totalMessages / targetMessages * 30) +
-      (totalMeetings / targetMeetings * 20)
-    ));
+  // 3. Generate final AggregatedMetrics
+  return rawData.map(({ staff, totals, report }) => {
+    // Score A: Presence (70%) + Critical Meetings (30%)
+    const scoreAMins = (totals.minutes / (companyAvg.minutes || 1)) * 3.0;
+    const scoreAWeekly = (totals.weeklyMeetings / (companyAvg.weeklyMeetings || 1)) * 3.0;
+    const scoreA = Math.min(5.0, Number(((scoreAMins * 0.7) + (scoreAWeekly * 0.3)).toFixed(1)));
 
-    // Category Q: Growth (40%) + Innovation (40%) + Culture (20%)
-    const scoreQ = Math.min(100, Math.round(
-      ((totalLearning + totalTraining) / targetGrowth * 40) +
-      ((totalInnovation * 10 + totalCreative) / targetGrowth * 40) +
-      ((totalHelloHub + totalHallOfFame) / targetCulture * 20)
-    ));
+    // Score P: Tasks (50%) + Communication (30%) + Engagement (20%)
+    const scorePTasks = (totals.tasks / (companyAvg.tasks || 1)) * 3.0;
+    const scorePMessages = (totals.messages / (companyAvg.messages || 1)) * 3.0;
+    const scorePEngagement = (totals.meetings / (companyAvg.meetings || 1)) * 3.0;
+    const scoreP = Math.min(5.0, Number(((scorePTasks * 0.5) + (scorePMessages * 0.3) + (scorePEngagement * 0.2)).toFixed(1)));
 
-    // Generate Daily Presence (Heatmap)
+    // Score Q: Growth (40%) + Innovation (40%) + Culture (20%)
+    const scoreQGrowth = ((totals.learning + totals.training) / (companyAvg.growth || 1)) * 3.0;
+    const scoreQInnovation = ((totals.innovation * 10 + totals.creative) / (companyAvg.innovation || 1)) * 3.0;
+    const scoreQCulture = ((totals.helloHub + totals.hallOfFame) / (companyAvg.culture || 1)) * 3.0;
+    const scoreQ = Math.min(5.0, Number(((scoreQGrowth * 0.4) + (scoreQInnovation * 0.4) + (scoreQCulture * 0.2)).toFixed(1)));
+
     const dailyPresence: DailyPresence[] = eachDayOfInterval({ start: range.startDate, end: range.endDate }).map(day => {
       const dayStr = format(day, 'yyyy-MM-dd');
-      const dayData = staffReport.find(r => r.activity_date === dayStr);
+      const dayData = report.find(r => r.activity_date === dayStr);
       const mins = dayData?.available_minutes || 0;
       let level: 0 | 1 | 2 | 3 | 4 = 0;
       if (mins > 0) level = 1;
@@ -130,20 +141,15 @@ export const fetchAggregatedMetrics = async (range: DateRange): Promise<Aggregat
       return { date: dayStr, minutes: mins, level };
     });
 
-    // Generate Activity Heatmap (Hourly - Simulated distribution for now)
     const activityHeatmap: ActivityHeatmapPoint[] = [];
     for (let day = 0; day < 7; day++) {
       for (let hour = 0; hour < 24; hour++) {
-        const d = new Date();
-        d.setHours(hour);
+        const d = new Date(); d.setHours(hour);
         const dayMatch = ((d.getDay() + 6) % 7) === day;
-
         let value = 0;
         if (hour >= 9 && hour <= 18 && dayMatch) {
-          // Give some base activity if they have tasks/chats
-          value = (totalTasks + totalTeamChats) > 0 ? Math.floor(Math.random() * 5) : 0;
+          value = (totals.tasks + totals.teamChat) > 0 ? Math.floor(Math.random() * 5) : 0;
         }
-
         activityHeatmap.push({ dayIndex: day, hour: hour, value });
       }
     }
@@ -154,31 +160,31 @@ export const fetchAggregatedMetrics = async (range: DateRange): Promise<Aggregat
       department: staff.department,
       avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(staff.name)}&background=00d26a&color=fff&bold=true`,
       cat_a_score: scoreA,
-      available_minutes: Math.round(totalMinutes),
-      weekly_meeting_attendance: totalMeetings,
-      weekly_meeting_count: totalWeeklyMeetings,
+      available_minutes: Math.round(totals.minutes),
+      weekly_meeting_attendance: totals.meetings,
+      weekly_meeting_count: totals.weeklyMeetings,
       daily_presence: dailyPresence,
       activity_heatmap: activityHeatmap,
       cat_p_score: scoreP,
-      total_tasks_done: totalTasks,
-      private_messages: totalPrivateChats,
-      team_chat: totalTeamChats,
-      private_chat: totalPrivateChats,
-      reply_messages: totalReplies,
-      total_messages: totalMessages,
+      total_tasks_done: totals.tasks,
+      private_messages: totals.privateChat,
+      team_chat: totals.teamChat,
+      private_chat: totals.privateChat,
+      reply_messages: totals.replies,
+      total_messages: totals.messages,
       cat_q_score: scoreQ,
-      learning_points: totalLearning,
-      creative_points: totalCreative,
-      training_points: totalTraining,
-      hello_hub: totalHelloHub,
-      hall_of_fame: totalHallOfFame,
-      innovation_lab_ideas: totalInnovation,
-      salary: totalSalary,
+      learning_points: totals.learning,
+      creative_points: totals.creative,
+      training_points: totals.training,
+      hello_hub: totals.helloHub,
+      hall_of_fame: totals.hallOfFame,
+      innovation_lab_ideas: totals.innovation,
+      salary: report.reduce((sum, r) => sum + (r.salary || 0), 0),
       mom_growth_a: 0,
       mom_growth_p: 0,
       mom_growth_q: 0,
       percentile_rank: 0,
-      next_level_target: { metric: 'Tasks', current: totalTasks, target: 200, message: 'Keep pushing!' },
+      next_level_target: { metric: 'Tasks', current: totals.tasks, target: (companyAvg.tasks * 1.5), message: 'Try to beat the company average!' },
       history: [],
       period: format(range.startDate, 'MMM yyyy')
     };

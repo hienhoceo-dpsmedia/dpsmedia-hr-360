@@ -61,8 +61,9 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onCategoryCl
                       </div>
                     </div>
                   </td>
-                  <td className={`px-6 py-4 font-bold text-right text-lg ${color}`}>
+                  <td className={`px-6 py-4 font-bold text-right text-xl ${color}`}>
                     {item[scoreKey] as number}
+                    <span className="text-[10px] opacity-40 ml-1">/ 5.0</span>
                   </td>
                 </tr>
               ))}
@@ -78,7 +79,7 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onCategoryCl
       <div className="flex justify-between items-end">
         <div>
           <h2 className="text-3xl font-bold text-white tracking-tight">Wall of Fame</h2>
-          <p className="text-slate-400 mt-2">Vinh danh các cá nhân xuất sắc nhất dựa trên hệ thống điểm HR-360.</p>
+          <p className="text-slate-400 mt-2">Vinh danh các cá nhân xuất sắc nhất dựa trên hệ thống điểm tương quan so với trung bình công ty.</p>
         </div>
       </div>
 
@@ -89,18 +90,40 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onCategoryCl
       </div>
 
       {/* Scoring Formulas Section */}
-      <div className="glass-panel p-8 rounded-2xl border border-white/10 mt-12">
+      <div className="glass-panel p-8 rounded-2xl border border-white/10 mt-12 bg-primary/5">
         <div className="flex items-center gap-3 mb-8">
           <div className="p-2 rounded-lg bg-primary/20 text-primary">
             <Info size={24} />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-white">Cách tính điểm (Scoring Formula)</h3>
-            <p className="text-sm text-slate-400">Hiểu rõ các chỉ số để tối ưu hóa hiệu quả làm việc của bạn.</p>
+            <h3 className="text-xl font-bold text-white">Mô hình tính điểm tương quan (Relative Scoring)</h3>
+            <p className="text-sm text-slate-400">Điểm số của bạn được tính dựa trên mức độ hiệu quả so với trung bình chung của toàn công ty.</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Legend */}
+          <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-4">
+            <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">Thang điểm 5</h4>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-400">Xuất sắc</span>
+                <span className="text-primary font-bold">5.0</span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-400">Trung bình công ty</span>
+                <span className="text-white font-bold">3.0</span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-400">Cần cải thiện</span>
+                <span className="text-slate-500 font-bold">&lt; 2.0</span>
+              </div>
+            </div>
+            <p className="text-[10px] text-slate-500 leading-relaxed italic">
+              "Nếu tất cả cùng nỗ lực tăng năng suất, mức trung bình (3.0) sẽ tăng lên, tạo động lực cạnh tranh lành mạnh."
+            </p>
+          </div>
+
           {/* Formula A */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-emerald-400 font-bold">
@@ -109,23 +132,20 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onCategoryCl
             </div>
             <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
               <div className="flex justify-between text-xs">
-                <span className="text-slate-300">Thời gian online (Target 133h)</span>
+                <span className="text-slate-300">Online (vs Avg)</span>
                 <span className="font-bold text-white">70%</span>
               </div>
               <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
                 <div className="bg-emerald-500 h-full w-[70%]"></div>
               </div>
               <div className="flex justify-between text-xs">
-                <span className="text-slate-300">Họp Weekly (T3 hàng tuần)</span>
+                <span className="text-slate-300">Họp Weekly (T3)</span>
                 <span className="font-bold text-white">30%</span>
               </div>
               <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
                 <div className="bg-emerald-500 h-full w-[30%]"></div>
               </div>
             </div>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Tập trung vào sự hiện diện thực tế và tính kỷ luật tham gia các buổi họp chiến lược của công ty.
-            </p>
           </div>
 
           {/* Formula P */}
@@ -136,30 +156,27 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onCategoryCl
             </div>
             <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
               <div className="flex justify-between text-xs">
-                <span className="text-slate-300">Tasks hoàn thành (Target 40)</span>
+                <span className="text-slate-300">Năng suất (Tasks)</span>
                 <span className="font-bold text-white">50%</span>
               </div>
               <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
                 <div className="bg-sky-500 h-full w-[50%]"></div>
               </div>
               <div className="flex justify-between text-xs">
-                <span className="text-slate-300">Kết nối & Tương tác (Messages)</span>
+                <span className="text-slate-300">Giao tiếp (Messages)</span>
                 <span className="font-bold text-white">30%</span>
               </div>
               <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
                 <div className="bg-sky-500 h-full w-[30%]"></div>
               </div>
               <div className="flex justify-between text-xs">
-                <span className="text-slate-300">Tham gia họp (Engagement)</span>
+                <span className="text-slate-300">Gắn kết (Meetings)</span>
                 <span className="font-bold text-white">20%</span>
               </div>
               <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
                 <div className="bg-sky-500 h-full w-[20%]"></div>
               </div>
             </div>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Đánh giá hiệu suất đầu ra công việc phối hợp với khả năng giao tiếp và mức độ chủ động trong nhóm.
-            </p>
           </div>
 
           {/* Formula Q */}
@@ -170,30 +187,27 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onCategoryCl
             </div>
             <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
               <div className="flex justify-between text-xs">
-                <span className="text-slate-300">Học tập & Đào tạo (Learning)</span>
+                <span className="text-slate-300">Cầu tiến (Learning)</span>
                 <span className="font-bold text-white">40%</span>
               </div>
               <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
                 <div className="bg-purple-500 h-full w-[40%]"></div>
               </div>
               <div className="flex justify-between text-xs">
-                <span className="text-slate-300">Đổi mới sáng tạo (Innovation)</span>
+                <span className="text-slate-300">Sáng tạo (Innovation)</span>
                 <span className="font-bold text-white">40%</span>
               </div>
               <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
                 <div className="bg-purple-500 h-full w-[40%]"></div>
               </div>
               <div className="flex justify-between text-xs">
-                <span className="text-slate-300">Đóng góp văn hoá (Culture)</span>
+                <span className="text-slate-300">Văn hóa (Kudos/Posts)</span>
                 <span className="font-bold text-white">20%</span>
               </div>
               <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
                 <div className="bg-purple-500 h-full w-[20%]"></div>
               </div>
             </div>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Đo lường sự phát triển bản thân, tư duy đổi mới và những đóng góp tích cực cho văn hóa DPS.
-            </p>
           </div>
         </div>
       </div>
