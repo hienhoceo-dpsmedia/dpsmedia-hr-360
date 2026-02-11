@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HR 360 Dashboard | dps.media</title>
+    <script>
+      // Runtime Environment Variables Injection
+      window.ENV = {
+        VITE_SUPABASE_URL: "__VITE_SUPABASE_URL__",
+        VITE_SUPABASE_ANON_KEY: "__VITE_SUPABASE_ANON_KEY__"
+      };
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
