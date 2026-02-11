@@ -1,6 +1,6 @@
 import React from 'react';
 import { AggregatedMetrics } from '../types';
-import { Medal, ExternalLink } from 'lucide-react';
+import { Medal, ExternalLink, Info, Activity, Zap, Star } from 'lucide-react';
 
 interface LeaderboardViewProps {
   metrics: AggregatedMetrics[];
@@ -22,7 +22,7 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onCategoryCl
     const sorted = [...data].sort((a, b) => (b[scoreKey] as number) - (a[scoreKey] as number)).slice(0, 5);
 
     return (
-      <div className="glass-panel rounded-2xl overflow-hidden flex flex-col hover:border-white/20 transition-all duration-300">
+      <div className="glass-panel rounded-2xl overflow-hidden flex flex-col hover:border-white/20 transition-all duration-300 h-full">
         <div
           className="p-5 border-b border-white/5 cursor-pointer group hover:bg-white/5 transition-colors"
           onClick={() => onCategoryClick(drillDownMetric)}
@@ -31,15 +31,15 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onCategoryCl
             <h3 className={`text-lg font-bold uppercase tracking-wider ${color}`}>{title}</h3>
             <ExternalLink size={14} className="text-slate-500 group-hover:text-white transition-colors" />
           </div>
-          <p className="text-xs text-slate-500 mt-1">Click to view global ranking</p>
+          <p className="text-xs text-slate-500 mt-1">Bấm để xem bảng xếp hạng chi tiết</p>
         </div>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto flex-1">
           <table className="w-full text-sm text-left">
             <thead className="text-xs uppercase text-slate-500 bg-white/5">
               <tr>
-                <th className="px-6 py-3">Rank</th>
-                <th className="px-6 py-3">Staff</th>
-                <th className="px-6 py-3 text-right">Score</th>
+                <th className="px-6 py-3">Hạng</th>
+                <th className="px-6 py-3">Nhân sự</th>
+                <th className="px-6 py-3 text-right">Điểm</th>
               </tr>
             </thead>
             <tbody>
@@ -75,15 +75,127 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onCategoryCl
 
   return (
     <div className="space-y-8 animate-fade-in pb-10">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-white tracking-tight">Wall of Fame</h2>
-        <p className="text-slate-400 mt-2">Recognizing excellence across Availability, Performance, and Quality.</p>
+      <div className="flex justify-between items-end">
+        <div>
+          <h2 className="text-3xl font-bold text-white tracking-tight">Wall of Fame</h2>
+          <p className="text-slate-400 mt-2">Vinh danh các cá nhân xuất sắc nhất dựa trên hệ thống điểm HR-360.</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {renderTable("Availability (Cat A)", metrics, "cat_a_score", "text-green-500", "available_minutes")}
-        {renderTable("Performance (Cat P)", metrics, "cat_p_score", "text-blue-500", "total_tasks_done")}
-        {renderTable("Quality (Cat Q)", metrics, "cat_q_score", "text-purple-500", "learning_points")}
+        {renderTable("Availability (Cat A)", metrics, "cat_a_score", "text-emerald-400", "available_minutes")}
+        {renderTable("Performance (Cat P)", metrics, "cat_p_score", "text-sky-400", "total_tasks_done")}
+        {renderTable("Quality (Cat Q)", metrics, "cat_q_score", "text-purple-400", "learning_points")}
+      </div>
+
+      {/* Scoring Formulas Section */}
+      <div className="glass-panel p-8 rounded-2xl border border-white/10 mt-12">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="p-2 rounded-lg bg-primary/20 text-primary">
+            <Info size={24} />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-white">Cách tính điểm (Scoring Formula)</h3>
+            <p className="text-sm text-slate-400">Hiểu rõ các chỉ số để tối ưu hóa hiệu quả làm việc của bạn.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Formula A */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-emerald-400 font-bold">
+              <Activity size={18} />
+              <span className="uppercase tracking-wider">CATEGORY A</span>
+            </div>
+            <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-300">Thời gian online (Target 133h)</span>
+                <span className="font-bold text-white">70%</span>
+              </div>
+              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                <div className="bg-emerald-500 h-full w-[70%]"></div>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-300">Họp Weekly (T3 hàng tuần)</span>
+                <span className="font-bold text-white">30%</span>
+              </div>
+              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                <div className="bg-emerald-500 h-full w-[30%]"></div>
+              </div>
+            </div>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Tập trung vào sự hiện diện thực tế và tính kỷ luật tham gia các buổi họp chiến lược của công ty.
+            </p>
+          </div>
+
+          {/* Formula P */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-sky-400 font-bold">
+              <Zap size={18} />
+              <span className="uppercase tracking-wider">CATEGORY P</span>
+            </div>
+            <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-300">Tasks hoàn thành (Target 40)</span>
+                <span className="font-bold text-white">50%</span>
+              </div>
+              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                <div className="bg-sky-500 h-full w-[50%]"></div>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-300">Kết nối & Tương tác (Messages)</span>
+                <span className="font-bold text-white">30%</span>
+              </div>
+              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                <div className="bg-sky-500 h-full w-[30%]"></div>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-300">Tham gia họp (Engagement)</span>
+                <span className="font-bold text-white">20%</span>
+              </div>
+              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                <div className="bg-sky-500 h-full w-[20%]"></div>
+              </div>
+            </div>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Đánh giá hiệu suất đầu ra công việc phối hợp với khả năng giao tiếp và mức độ chủ động trong nhóm.
+            </p>
+          </div>
+
+          {/* Formula Q */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-purple-400 font-bold">
+              <Star size={18} />
+              <span className="uppercase tracking-wider">CATEGORY Q</span>
+            </div>
+            <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-300">Học tập & Đào tạo (Learning)</span>
+                <span className="font-bold text-white">40%</span>
+              </div>
+              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                <div className="bg-purple-500 h-full w-[40%]"></div>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-300">Đổi mới sáng tạo (Innovation)</span>
+                <span className="font-bold text-white">40%</span>
+              </div>
+              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                <div className="bg-purple-500 h-full w-[40%]"></div>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-300">Đóng góp văn hoá (Culture)</span>
+                <span className="font-bold text-white">20%</span>
+              </div>
+              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                <div className="bg-purple-500 h-full w-[20%]"></div>
+              </div>
+            </div>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Đo lường sự phát triển bản thân, tư duy đổi mới và những đóng góp tích cực cho văn hóa DPS.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
