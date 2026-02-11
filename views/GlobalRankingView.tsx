@@ -1,6 +1,6 @@
 import React from 'react';
 import { AggregatedMetrics } from '../types';
-import { BarChart2, Filter } from 'lucide-react';
+import { BarChart2, Filter, Copy, Check } from 'lucide-react';
 
 interface GlobalRankingViewProps {
   metrics: AggregatedMetrics[];
@@ -10,6 +10,7 @@ interface GlobalRankingViewProps {
 
 const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialMetric = 'total_tasks_done', onStaffClick }) => {
   const [selectedMetric, setSelectedMetric] = React.useState<keyof AggregatedMetrics>(initialMetric);
+  const [copied, setCopied] = React.useState(false);
 
   // Available metrics definition with detailed explanations
   const rankingOptions: {
@@ -152,6 +153,19 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
     return valB - valA;
   });
 
+  const handleCopyData = () => {
+    const header = `Rank\tName\tDepartment\t${currentOption.label}\tUnit`;
+    const rows = sortedData.map((item, index) =>
+      `${index + 1}\t${item.name}\t${item.department}\t${item[selectedMetric]}\t${currentOption.unit}`
+    );
+    const content = [header, ...rows].join('\n');
+
+    navigator.clipboard.writeText(content).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
   const maxValue = Math.max(...sortedData.map(m => m[selectedMetric] as number)) || 1;
 
   return (
@@ -212,21 +226,35 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
             <p className="text-slate-400 text-sm leading-relaxed italic">"{currentOption.rationale}"</p>
           </div>
 
-          {currentOption.externalUrl && (
-            <div className="flex items-center justify-center px-4">
+          <div className="flex flex-col gap-2 justify-center px-4 border-l border-white/10">
+            {currentOption.externalUrl && (
               <a
                 href={currentOption.externalUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-primary/50 transition-all group"
+                className="flex items-center gap-3 py-2 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-primary/50 transition-all group min-w-[160px]"
               >
-                <BarChart2 className="text-primary group-hover:scale-110 transition-transform" size={24} />
-                <span className="text-[10px] uppercase font-bold text-slate-400 group-hover:text-white transition-colors text-center">
+                <BarChart2 className="text-primary group-hover:scale-110 transition-transform" size={18} />
+                <span className="text-[10px] uppercase font-bold text-slate-400 group-hover:text-white transition-colors">
                   Đối chiếu dữ liệu
                 </span>
               </a>
-            </div>
-          )}
+            )}
+
+            <button
+              onClick={handleCopyData}
+              className="flex items-center gap-3 py-2 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-500/50 transition-all group min-w-[160px]"
+            >
+              {copied ? (
+                <Check className="text-emerald-500 group-hover:scale-110 transition-transform" size={18} />
+              ) : (
+                <Copy className="text-primary group-hover:scale-110 transition-transform" size={18} />
+              )}
+              <span className="text-[10px] uppercase font-bold text-slate-400 group-hover:text-white transition-colors">
+                {copied ? 'Đã sao chép!' : 'Copy dữ liệu bảng'}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
