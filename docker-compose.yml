@@ -1,8 +1,9 @@
 services:
   hr-360-app:
     build: .
+    container_name: dpsmedia-hr-dashboard
     ports:
-      - "6001:80"
+      - "${PORT:-6001}:80"
     env_file:
-      - .env.local
+      - .env
     restart: always
