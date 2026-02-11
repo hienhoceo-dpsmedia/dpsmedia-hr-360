@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AggregatedMetrics } from '../types';
-import { Medal, ExternalLink, Info, Activity, Zap, Star } from 'lucide-react';
+import { Medal, Trophy, Info, Star, Copy, Check } from 'lucide-react';
 
 interface LeaderboardViewProps {
   metrics: AggregatedMetrics[];
@@ -8,85 +8,143 @@ interface LeaderboardViewProps {
   onStaffClick: (staffId: string) => void;
 }
 
-const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onCategoryClick, onStaffClick }) => {
+const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onStaffClick }) => {
+  const [copied, setCopied] = useState(false);
 
-  const renderRankIcon = (index: number) => {
-    if (index === 0) return <div className="w-8 h-8 rounded-full bg-yellow-500/20 text-yellow-500 flex items-center justify-center border border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.5)]"><Medal size={16} /></div>;
-    if (index === 1) return <div className="w-8 h-8 rounded-full bg-slate-300/20 text-slate-300 flex items-center justify-center border border-slate-300/50 shadow-[0_0_10px_rgba(203,213,225,0.3)]"><Medal size={16} /></div>;
-    if (index === 2) return <div className="w-8 h-8 rounded-full bg-orange-700/20 text-orange-400 flex items-center justify-center border border-orange-500/50 shadow-[0_0_10px_rgba(249,115,22,0.3)]"><Medal size={16} /></div>;
-    return <span className="text-slate-500 font-bold w-8 text-center">{index + 1}</span>;
-  };
+  // Sort by Total Rank Score descending
+  const sortedMetrics = [...metrics].sort((a, b) => b.total_rank_score - a.total_rank_score);
+  const top3 = sortedMetrics.slice(0, 3);
+  const rest = sortedMetrics.slice(3);
 
-  const renderTable = (title: string, data: AggregatedMetrics[], scoreKey: keyof AggregatedMetrics, color: string, drillDownMetric: keyof AggregatedMetrics) => {
-    // Sort descending
-    const sorted = [...data].sort((a, b) => (b[scoreKey] as number) - (a[scoreKey] as number));
+  const handleCopyData = () => {
+    const headers = ['Rank', 'Name', 'Department', 'Total Rank Score'];
+    const rows = sortedMetrics.map((item, index) => [
+      index + 1,
+      item.staffName,
+      item.department,
+      item.total_rank_score.toFixed(4)
+    ]);
 
-    return (
-      <div className="glass-panel rounded-2xl overflow-hidden flex flex-col hover:border-white/20 transition-all duration-300 h-full">
-        <div
-          className="p-5 border-b border-white/5 cursor-pointer group hover:bg-white/5 transition-colors"
-          onClick={() => onCategoryClick(drillDownMetric)}
-        >
-          <div className="flex justify-between items-center">
-            <h3 className={`text-lg font-bold uppercase tracking-wider ${color}`}>{title}</h3>
-            <ExternalLink size={14} className="text-slate-500 group-hover:text-white transition-colors" />
-          </div>
-          <p className="text-xs text-slate-500 mt-1">Bấm để xem bảng xếp hạng chi tiết</p>
-        </div>
-        <div className="overflow-x-auto flex-1 max-h-[600px] overflow-y-auto custom-scrollbar">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs uppercase text-slate-500 bg-white/5">
-              <tr>
-                <th className="px-6 py-3">Hạng</th>
-                <th className="px-6 py-3">Nhân sự</th>
-                <th className="px-6 py-3 text-right">Điểm</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sorted.map((item, index) => (
-                <tr
-                  key={item.staffId}
-                  className="border-b border-white/5 hover:bg-white/10 transition-colors cursor-pointer group"
-                  onClick={() => onStaffClick(item.staffId)}
-                >
-                  <td className="px-6 py-4">
-                    {renderRankIcon(index)}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <img src={item.avatarUrl} alt="" className="w-8 h-8 rounded-full bg-slate-800" />
-                      <div>
-                        <div className="font-bold text-white group-hover:text-primary transition-colors">{item.staffName}</div>
-                        <div className="text-xs text-slate-500">{item.department}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className={`px-6 py-4 font-bold text-right text-xl ${color}`}>
-                    {item[scoreKey] as number}
-                    <span className="text-[10px] opacity-40 ml-1">/ 5.0</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    );
+    const tsvContent = [
+      headers.join('\t'),
+      ...rows.map(row => row.join('\t'))
+    ].join('\n');
+
+    navigator.clipboard.writeText(tsvContent);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <div className="space-y-8 animate-fade-in pb-10">
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-white tracking-tight">Wall of Fame</h2>
-          <p className="text-slate-400 mt-2">Vinh danh các cá nhân xuất sắc nhất dựa trên hệ thống điểm tương quan so với trung bình công ty.</p>
+          <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+            <Trophy className="text-yellow-500" size={32} />
+            HR Excellence Leaderboard
+          </h2>
+          <p className="text-slate-400 mt-2">Vinh danh những cá nhân xuất sắc nhất dựa trên tổng điểm xếp hạng 15 chỉ số toàn diện.</p>
         </div>
+
+        <button
+          onClick={handleCopyData}
+          className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors border border-slate-700"
+        >
+          {copied ? <Check size={18} className="text-emerald-500" /> : <Copy size={18} />}
+          <span className="text-sm font-medium">{copied ? 'Copied!' : 'Copy Data'}</span>
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {renderTable("Availability (Cat A)", metrics, "cat_a_score", "text-emerald-400", "available_minutes")}
-        {renderTable("Performance (Cat P)", metrics, "cat_p_score", "text-sky-400", "total_tasks_done")}
-        {renderTable("Quality (Cat Q)", metrics, "cat_q_score", "text-purple-400", "learning_points")}
+      {/* Top 3 Podium */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 items-end">
+        {/* Rank 2 */}
+        {top3[1] && (
+          <div
+            className="glass-panel p-6 rounded-2xl border-t-4 border-t-slate-300 flex flex-col items-center transform hover:-translate-y-2 transition-transform cursor-pointer"
+            onClick={() => onStaffClick(top3[1].staffId)}
+          >
+            <div className="relative mb-4">
+              <img src={top3[1].avatarUrl} alt="" className="w-20 h-20 rounded-full border-4 border-slate-300 shadow-lg" />
+              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-slate-300 text-slate-900 font-bold px-3 py-1 rounded-full text-xs shadow-md">
+                #2
+              </div>
+            </div>
+            <h3 className="text-lg font-bold text-white mt-2">{top3[1].staffName}</h3>
+            <p className="text-sm text-slate-400 mb-4">{top3[1].department}</p>
+            <div className="text-3xl font-bold text-slate-300">{top3[1].total_rank_score.toFixed(4)}</div>
+            <p className="text-xs text-slate-500 uppercase tracking-wider mt-1">Total Score</p>
+          </div>
+        )}
+
+        {/* Rank 1 */}
+        {top3[0] && (
+          <div
+            className="glass-panel p-8 rounded-2xl border-t-4 border-t-yellow-500 flex flex-col items-center transform hover:-translate-y-2 transition-transform cursor-pointer relative z-10 scale-110 shadow-xl bg-gradient-to-b from-yellow-500/10 to-transparent"
+            onClick={() => onStaffClick(top3[0].staffId)}
+          >
+            <div className="absolute -top-6 text-yellow-500 animate-bounce">
+              <Medal size={40} />
+            </div>
+            <div className="relative mb-4 mt-4">
+              <img src={top3[0].avatarUrl} alt="" className="w-24 h-24 rounded-full border-4 border-yellow-500 shadow-yellow-500/20 shadow-xl" />
+              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-yellow-500 text-yellow-950 font-bold px-4 py-1 rounded-full text-sm shadow-md">
+                #1 CHAMPION
+              </div>
+            </div>
+            <h3 className="text-xl font-bold text-white mt-2 text-center">{top3[0].staffName}</h3>
+            <p className="text-sm text-yellow-200/70 mb-4">{top3[0].department}</p>
+            <div className="text-4xl font-bold text-yellow-400">{top3[0].total_rank_score.toFixed(4)}</div>
+            <p className="text-xs text-yellow-500/50 uppercase tracking-wider mt-1">Total Score</p>
+          </div>
+        )}
+
+        {/* Rank 3 */}
+        {top3[2] && (
+          <div
+            className="glass-panel p-6 rounded-2xl border-t-4 border-t-orange-500 flex flex-col items-center transform hover:-translate-y-2 transition-transform cursor-pointer"
+            onClick={() => onStaffClick(top3[2].staffId)}
+          >
+            <div className="relative mb-4">
+              <img src={top3[2].avatarUrl} alt="" className="w-20 h-20 rounded-full border-4 border-orange-500 shadow-lg" />
+              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-orange-500 text-white font-bold px-3 py-1 rounded-full text-xs shadow-md">
+                #3
+              </div>
+            </div>
+            <h3 className="text-lg font-bold text-white mt-2">{top3[2].staffName}</h3>
+            <p className="text-sm text-slate-400 mb-4">{top3[2].department}</p>
+            <div className="text-3xl font-bold text-orange-500">{top3[2].total_rank_score.toFixed(4)}</div>
+            <p className="text-xs text-slate-500 uppercase tracking-wider mt-1">Total Score</p>
+          </div>
+        )}
+      </div>
+
+      {/* Existing List for the Rest */}
+      <div className="glass-panel rounded-2xl overflow-hidden">
+        <div className="p-6 border-b border-white/5">
+          <h3 className="text-lg font-bold text-white">Full Rankings</h3>
+        </div>
+        <div className="bg-slate-900/30">
+          {rest.map((item, index) => (
+            <div
+              key={item.staffId}
+              className="flex items-center p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer"
+              onClick={() => onStaffClick(item.staffId)}
+            >
+              <div className="w-12 text-center font-bold text-slate-500">#{index + 4}</div>
+              <div className="flex-1 flex items-center gap-4">
+                <img src={item.avatarUrl} alt="" className="w-10 h-10 rounded-full bg-slate-800" />
+                <div>
+                  <div className="text-white font-semibold">{item.staffName}</div>
+                  <div className="text-xs text-slate-500">{item.department}</div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xl font-bold text-emerald-400">{item.total_rank_score.toFixed(4)}</div>
+                <div className="text-[10px] text-slate-600 uppercase">Points</div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Scoring Formulas Section */}
@@ -96,130 +154,50 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onCategoryCl
             <Info size={24} />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-white">Mô hình tính điểm tương quan (Relative Scoring)</h3>
-            <p className="text-sm text-slate-400">Điểm số của bạn được tính dựa trên mức độ hiệu quả so với trung bình chung của toàn công ty.</p>
+            <h3 className="text-xl font-bold text-white">Cơ chế tính điểm xếp hạng (Rank-based Scoring)</h3>
+            <p className="text-sm text-slate-400">Hệ thống đánh giá sự xuất sắc dựa trên thứ hạng của bạn trong từng chỉ số cụ thể.</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Legend */}
-          <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-4">
-            <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">Thang điểm 5</h4>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-400">Xuất sắc</span>
-                <span className="text-primary font-bold">5.0</span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-400">Trung bình công ty</span>
-                <span className="text-white font-bold">3.0</span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-400">Cần cải thiện</span>
-                <span className="text-slate-500 font-bold">&lt; 2.0</span>
-              </div>
-            </div>
-            <p className="text-[10px] text-slate-500 leading-relaxed italic">
-              "Nếu tất cả cùng nỗ lực tăng năng suất, mức trung bình (3.0) sẽ tăng lên, tạo động lực cạnh tranh lành mạnh."
-            </p>
-          </div>
-
-          {/* Formula A */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Logic Explanation */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-emerald-400 font-bold">
-              <Activity size={18} />
-              <span className="uppercase tracking-wider">CATEGORY A</span>
-            </div>
-            <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
-              <div className="flex justify-between text-[10px]">
-                <span className="text-slate-300">Online Minutes</span>
-                <span className="font-bold text-white">70%</span>
-              </div>
-              <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
-                <div className="bg-emerald-500 h-full w-[70%]"></div>
-              </div>
-              <div className="flex justify-between text-[10px]">
-                <span className="text-slate-300">Weekly Meeting (T3)</span>
-                <span className="font-bold text-white">30%</span>
-              </div>
-              <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
-                <div className="bg-emerald-500 h-full w-[30%]"></div>
-              </div>
+            <h4 className="font-bold text-white flex items-center gap-2">
+              <Star size={16} className="text-yellow-500" />
+              Công thức cốt lõi
+            </h4>
+            <div className="p-4 rounded-xl bg-black/20 border border-white/5 space-y-2">
+              <code className="block text-emerald-400 font-mono text-sm bg-black/40 p-2 rounded">
+                Điểm = (Giá trị của bạn / Giá trị Top 1) * Trọng số
+              </code>
+              <ul className="text-sm text-slate-400 list-disc ml-5 space-y-1">
+                <li><span className="text-white font-bold">Tasks Done:</span> Trọng số <span className="text-yellow-400 font-bold">0.2</span></li>
+                <li><span className="text-white font-bold">Chỉ số khác:</span> Trọng số <span className="text-emerald-400 font-bold">0.1</span></li>
+              </ul>
             </div>
           </div>
 
-          {/* Formula P */}
+          {/* Rationale */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sky-400 font-bold">
-              <Zap size={18} />
-              <span className="uppercase tracking-wider">CATEGORY P</span>
-            </div>
-            <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
-              <div className="flex justify-between text-[10px]">
-                <span className="text-slate-300">Năng suất (Tasks)</span>
-                <span className="font-bold text-white">50%</span>
-              </div>
-              <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
-                <div className="bg-sky-500 h-full w-[50%]"></div>
-              </div>
-              <div className="flex justify-between text-[10px]">
-                <span className="text-slate-300">Messages (Team/Private/Reply)</span>
-                <span className="font-bold text-white">30%</span>
-              </div>
-              <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
-                <div className="bg-sky-500 h-full w-[30%]"></div>
-              </div>
-              <div className="flex justify-between text-[10px]">
-                <span className="text-slate-300">Gắn kết (Họp/Engagement)</span>
-                <span className="font-bold text-white">20%</span>
-              </div>
-              <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
-                <div className="bg-sky-500 h-full w-[20%]"></div>
-              </div>
+            <h4 className="font-bold text-white flex items-center gap-2">
+              <Info size={16} className="text-sky-500" />
+              Tại sao lại tính như vậy?
+            </h4>
+            <div className="p-4 rounded-xl bg-black/20 border border-white/5 space-y-3">
+              <p className="text-sm text-slate-300">
+                <strong className="text-white">Công bằng tuyệt đối:</strong> Điểm số phản ánh đúng hiệu suất thực tế. Nếu bạn làm bằng 90% người dẫn đầu, bạn sẽ nhận được 90% số điểm tối đa.
+              </p>
+              <p className="text-sm text-slate-300">
+                <strong className="text-white">Toàn diện:</strong> Để đạt điểm tổng cao nhất, bạn không chỉ cần giỏi một thứ, mà cần có thứ hạng cao (Top 10) ở nhiều chỉ số khác nhau.
+              </p>
+              <p className="text-sm text-slate-300">
+                <strong className="text-white">Ai cũng có điểm:</strong> Dù ở thứ hạng nào, bạn cũng tích lũy được điểm số đóng góp vào thành tích chung.
+              </p>
             </div>
           </div>
-
-          {/* Formula Q */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-purple-400 font-bold">
-              <Star size={18} />
-              <span className="uppercase tracking-wider">CATEGORY Q</span>
-            </div>
-            <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-[10px]">
-                  <span className="text-slate-300">Cầu tiến (Learning + Training)</span>
-                  <span className="font-bold text-white">40%</span>
-                </div>
-                <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
-                  <div className="bg-purple-500 h-full w-[40%]"></div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-[10px]">
-                  <span className="text-slate-300 italic">Sáng tạo (Lab * 10 + Creative)</span>
-                  <span className="font-bold text-white">40%</span>
-                </div>
-                <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
-                  <div className="bg-purple-500 h-full w-[40%]"></div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-[10px]">
-                  <span className="text-slate-300">Văn hóa (Hello Hub + Hall)</span>
-                  <span className="font-bold text-white">20%</span>
-                </div>
-                <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
-                  <div className="bg-purple-500 h-full w-[20%]"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+        </div >
+      </div >
+    </div >
   );
 };
 

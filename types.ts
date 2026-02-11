@@ -44,6 +44,14 @@ export interface PresenceLog {
   date: string;
 }
 
+export interface RawPresenceLog {
+  LARK_MAIL: string;
+  "DATE TIME": string; // Space in column name
+  activity: string;
+  MS_id?: string;
+  NAME?: string;
+}
+
 // Historical Data Point for Line Charts
 export interface HistoryPoint {
   month: string;
@@ -74,6 +82,25 @@ export interface Kudos {
   category: 'Helpful' | 'Creative' | 'Teamwork';
 }
 
+// Rank Score Breakdown (13 Metrics)
+export interface RankScoreBreakdown {
+  tasks: number;
+  meetings: number;
+  weeklyMeetings: number;
+  minutes: number;
+  learning: number;
+  creative: number;
+  training: number;
+  helloHub: number;
+  hallOfFame: number;
+  innovation: number;
+  teamChat: number;
+  privateChat: number;
+  replies: number;
+  mostFavorite: number;
+  mostInfluential: number;
+}
+
 // Aggregated Metrics for Dashboard
 export interface AggregatedMetrics {
   staffId: string;
@@ -81,7 +108,11 @@ export interface AggregatedMetrics {
   department: string;
   avatarUrl?: string;
 
-  // Category A: Availability
+  // New Rank-Based Scoring
+  total_rank_score: number;
+  rank_score_breakdown: RankScoreBreakdown;
+
+  // Category A: Availability (DEPRECATED)
   cat_a_score: number;
   available_minutes: number;
   weekly_meeting_attendance: number; // Total meetings
@@ -89,7 +120,7 @@ export interface AggregatedMetrics {
   daily_presence: DailyPresence[];
   activity_heatmap: ActivityHeatmapPoint[]; // New 2D Heatmap Data
 
-  // Category P: Performance
+  // Category P: Performance (DEPRECATED)
   cat_p_score: number;
   total_tasks_done: number;
   private_messages: number;
@@ -98,7 +129,7 @@ export interface AggregatedMetrics {
   reply_messages: number;
   total_messages: number;
 
-  // Category Q: Quality
+  // Category Q: Quality (DEPRECATED)
   cat_q_score: number;
   learning_points: number;
   creative_points: number; // Innovation Lab / Creative points
@@ -107,6 +138,10 @@ export interface AggregatedMetrics {
   hall_of_fame: number;
   innovation_lab_ideas: number;
   salary: number; // For admin comparison/overview
+
+  // Assessment Metrics
+  mostFavorite: number;
+  mostInfluential: number;
 
   // Growth Metrics (Month over Month)
   mom_growth_a: number;

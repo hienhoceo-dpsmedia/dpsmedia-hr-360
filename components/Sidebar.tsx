@@ -12,9 +12,9 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, currentUser, onLogout, isOpen, onClose }) => {
-  
+
   const menuItems: { id: ViewMode; label: string; icon: React.ReactNode; adminOnly?: boolean }[] = [
-    { id: 'my_dashboard', label: 'My Dashboard', icon: <UserCheck size={20} /> },
+    // { id: 'my_dashboard', label: 'My Dashboard', icon: <UserCheck size={20} /> }, // Hidden per user request
     { id: 'leaderboard', label: 'Leaderboard', icon: <Trophy size={20} /> },
     { id: 'global_ranking', label: 'Global Ranking', icon: <BarChart2 size={20} /> },
     // Admin Only Items
@@ -29,7 +29,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, currentUse
     <>
       {/* Mobile Overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
           onClick={onClose}
         ></div>
@@ -68,11 +68,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, currentUse
                 onViewChange(item.id);
                 onClose();
               }}
-              className={`group w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-300 border ${
-                currentView === item.id
+              className={`group w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-300 border ${currentView === item.id
                   ? 'bg-primary/10 text-primary border-primary/20 shadow-[0_0_20px_rgba(0,210,106,0.1)]'
                   : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 border-transparent hover:text-slate-900 dark:hover:text-slate-200'
-              }`}
+                }`}
             >
               <div className="flex items-center space-x-3">
                 <span className={currentView === item.id ? 'text-primary' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'}>
@@ -85,7 +84,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, currentUse
           ))}
         </nav>
 
-        {/* User Footer */}
+        {/* User Footer (Hidden per user request) */}
+        {/*
         <div className="p-4 m-4 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 backdrop-blur-md">
           <div className="flex items-center space-x-3 mb-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-blue-500 p-[2px]">
@@ -105,6 +105,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, currentUse
             <LogOut size={14} /> Sign Out
           </button>
         </div>
+        */}
       </div>
     </>
   );

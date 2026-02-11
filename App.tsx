@@ -12,7 +12,7 @@ import { Filter, Sun, Moon, Menu, RefreshCw } from 'lucide-react';
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<StaffInfo | null>(null);
-  const [currentView, setCurrentView] = useState<ViewMode>('my_dashboard');
+  const [currentView, setCurrentView] = useState<ViewMode>('leaderboard'); // Default to Leaderboard per user request
   const [staffList, setStaffList] = useState<StaffInfo[]>([]);
   const [metrics, setMetrics] = useState<AggregatedMetrics[]>([]);
   const [myKudos, setMyKudos] = useState<Kudos[]>([]);

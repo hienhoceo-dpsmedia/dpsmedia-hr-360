@@ -20,128 +20,153 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
     category: string;
     description: string;
     rationale: string;
-    externalUrl?: string; // NEW
+    externalUrl?: string;
   }[] = [
-      // Category A
       {
-        key: 'available_minutes',
-        label: 'Available Minutes',
-        unit: 'mins',
-        category: 'A',
-        description: 'Tổng thời gian bạn có mặt và sẵn sàng làm việc trong giờ hành chính, tính theo phút.',
-        rationale: 'Thời gian online là dấu hiệu cơ bản cho thấy bạn có mặt và sẵn sàng làm việc. Khi làm việc từ xa hoặc làm việc linh hoạt, việc đo lường thời gian khả dụng giúp cấp quản lý hiểu rõ mức độ hiện diện của từng thành viên, phân bổ công việc hợp lý và hỗ trợ kịp thời nếu cần. Không đo để giám sát, mà để hỗ trợ và tối ưu hóa hiệu quả làm việc của cả nhóm.',
-        externalUrl: 'https://meta.dpsmedia.vn/public/question/8f76d289-af5a-4f65-bea5-f540c90da203'
+        key: 'total_rank_score',
+        label: 'Total Rank Score',
+        unit: 'pts',
+        category: 'Overall',
+        description: 'Tổng điểm xếp hạng dựa trên 15 chỉ số. Công thức: Score = Sum(0.1 / Rank).',
+        rationale: 'Đánh giá tổng quan vị thế của nhân sự trên mọi mặt trận. Càng đứng đầu nhiều chỉ số, điểm càng cao.',
+        externalUrl: ''
       },
-      {
-        key: 'weekly_meeting_count',
-        label: 'Weekly Meeting',
-        unit: 'cnt',
-        category: 'A',
-        description: 'Buổi họp vào 21h thứ Ba hàng tuần để cả team cùng cập nhật mục tiêu, chia sẻ khó khăn – chiến thắng, và cùng tiếp thêm năng lượng cho tuần mới. Dù làm việc từ xa hay tại văn phòng, đây là khoảnh khắc cả đội “về chung một nhịp”.',
-        rationale: 'Tối thứ Ba là “nhịp tim” của dps.media — khoảnh khắc cả đội, dù ở khắp mọi nơi, cùng hòa chung một nhịp: cập nhật mục tiêu, chia sẻ chiến thắng, tháo gỡ vướng mắc và tiếp thêm năng lượng cho tuần mới. Làm việc 100% từ xa dễ khiến mỗi người thành “ốc đảo”, nhưng Weekly Meeting kéo chúng ta lại thành một “lục địa” vững vàng.',
-        externalUrl: 'https://meta.dpsmedia.vn/public/question/1ec9923c-fcbd-488c-96c8-964d4fa045c7'
-      },
-      // Category P
+      // Rank Metrics
       {
         key: 'total_tasks_done',
         label: 'Total Tasks Done',
         unit: 'tasks',
-        category: 'P',
+        category: 'Metric',
         description: 'Tổng số công việc đã hoàn thành trong tháng',
-        rationale: 'Đo mức độ hiệu quả và kết quả công việc hàng tháng. Giúp đánh giá sự chủ động, năng suất và khả năng hoàn thành nhiệm vụ.',
+        rationale: 'Đo mức độ hiệu quả và kết quả công việc hàng tháng.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/5d0b4520-0bb3-4887-a654-4d49f55ffe57'
       },
       {
-        key: 'team_chat',
-        label: 'Team Chat (Public)',
-        unit: 'msgs',
-        category: 'P',
-        description: 'Tổng số tin nhắn bạn gửi trong các kênh team (group chat công khai)',
-        rationale: 'Phản ánh mức độ phối hợp, chia sẻ thông tin và tinh thần làm việc nhóm. Giao tiếp cởi mở giúp team gắn kết và minh bạch.',
-        externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
-      },
-      {
-        key: 'private_chat',
-        label: 'Team Chat (Private)',
-        unit: 'msgs',
-        category: 'P',
-        description: 'Tổng số tin nhắn riêng bạn gửi cho đồng đội',
-        rationale: 'Cho thấy sự chủ động kết nối và hỗ trợ lẫn nhau trong công việc. Giao tiếp 1:1 hiệu quả giúp giải quyết vấn đề nhanh chóng.',
-        externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
-      },
-      {
-        key: 'reply_messages',
-        label: 'Reply Messages',
-        unit: 'msgs',
-        category: 'P',
-        description: 'Tổng số lần bạn phản hồi tin nhắn của người khác',
-        rationale: 'Thể hiện sự quan tâm, tương tác and phản hồi trong teamwork. Trả lời nhanh - hỗ trợ tốt - xây dựng niềm tin.',
-        externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
-      },
-      {
         key: 'weekly_meeting_attendance',
-        label: 'Meeting Count',
+        label: 'Weekly Meeting Attendance',
         unit: 'mtgs',
-        category: 'P',
-        description: 'Số lượng cuộc họp bạn tham gia trong tháng',
-        rationale: 'Cho biết mức độ bạn tham gia vào quá trình ra quyết định, cập nhật tiến độ and đóng góp ý kiến trong công việc chung.',
+        category: 'Metric',
+        description: 'Số lượng cuộc họp bạn tham gia trong tháng (từ Teams)',
+        rationale: 'Cho biết mức độ bạn tham gia vào quá trình ra quyết định và thảo luận.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
       },
-      // Category Q (including diem_hoc_tap)
+      {
+        key: 'weekly_meeting_count',
+        label: 'Weekly Meeting Count',
+        unit: 'cnt',
+        category: 'Metric',
+        description: 'Số lần tham gia họp Weekly tối thứ 3',
+        rationale: 'Sự cam kết với hoạt động chung quan trọng nhất của công ty.',
+        externalUrl: 'https://meta.dpsmedia.vn/public/question/1ec9923c-fcbd-488c-96c8-964d4fa045c7'
+      },
+      {
+        key: 'available_minutes',
+        label: 'Available Minutes',
+        unit: 'mins',
+        category: 'Metric',
+        description: 'Tổng thời gian online trong giờ hành chín',
+        rationale: 'Đo lường sự hiện diện và sẵn sàng của nhân sự.',
+        externalUrl: 'https://meta.dpsmedia.vn/public/question/8f76d289-af5a-4f65-bea5-f540c90da203'
+      },
       {
         key: 'learning_points',
         label: 'Learning Points',
         unit: 'pts',
-        category: 'Q',
-        description: 'Số bài học bạn đã hoàn thành trên hệ thống học chung Lifelong Learning',
-        rationale: 'Ghi nhận tinh thần tự học, phát triển bản thân and tiếp thu kiến thức mới. Nhân sự chủ động học là nhân sự phát triển bền vững.',
-        externalUrl: 'https://meta.dpsmedia.vn/public/question/51aedbf2-83d5-4a0d-83aa-6dce3e58f5d8'
-      },
-      {
-        key: 'training_points',
-        label: 'Training Points',
-        unit: 'pts',
-        category: 'Q',
-        description: 'Số lần bạn tương tác (thảo luận, phản hồi...) trên hệ thống học chung',
-        rationale: 'Đo mức độ chủ động chia sẻ and học hỏi từ cộng đồng. Học không chỉ là tiếp thu, mà còn là cùng nhau phát triển.',
+        category: 'Metric',
+        description: 'Điểm học tập trên hệ thống Lifelong Learning',
+        rationale: 'Tinh thần tự học và phát triển bản thân.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/51aedbf2-83d5-4a0d-83aa-6dce3e58f5d8'
       },
       {
         key: 'creative_points',
         label: 'Creative Points',
         unit: 'pts',
-        category: 'Q',
-        description: 'Số bài viết hoặc khóa học bạn đóng góp lên hệ thống học chung',
-        rationale: 'Phản ánh tinh thần chia sẻ tri thức and sáng tạo nội dung hữu ích cho cộng đồng nội bộ. Càng chia sẻ – càng lan tỏa giá trị.',
+        category: 'Metric',
+        description: 'Điểm sáng tạo (bài viết, chia sẻ) trên hệ thống',
+        rationale: 'Khả năng đóng góp tri thức cho tổ chức.',
+        externalUrl: 'https://meta.dpsmedia.vn/public/question/51aedbf2-83d5-4a0d-83aa-6dce3e58f5d8'
+      },
+      {
+        key: 'training_points',
+        label: 'Training Points',
+        unit: 'pts',
+        category: 'Metric',
+        description: 'Điểm rèn luyện (tương tác) trên hệ thống',
+        rationale: 'Sự tích cực tham gia vào cộng đồng học tập.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/51aedbf2-83d5-4a0d-83aa-6dce3e58f5d8'
       },
       {
         key: 'hello_hub',
         label: 'Hello Hub',
         unit: 'cnt',
-        category: 'Q',
-        description: 'Số lần bạn điểm danh hàng ngày trong tháng',
-        rationale: 'Đo mức độ hiện diện và cam kết với công việc mỗi ngày. Điểm danh không chỉ để điểm danh – mà là sự bắt đầu cho một ngày làm việc hiệu quả.',
-        externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
-      },
-      {
-        key: 'innovation_lab_ideas',
-        label: 'Innovation Lab',
-        unit: 'ideas',
-        category: 'Q',
-        description: 'Số ý tưởng bạn đóng góp để cải tiến công việc',
-        rationale: 'Cho thấy tinh thần cải tiến không ngừng, tìm cách làm mới – làm tốt hơn mỗi ngày. Mỗi góp ý là một bước tiến cho cả team.',
+        category: 'Metric',
+        description: 'Số lần điểm danh Hello Hub',
+        rationale: 'Kỷ luật và thói quen tích cực đầu ngày.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
       },
       {
         key: 'hall_of_fame',
         label: 'Hall of Fame',
         unit: 'times',
-        category: 'Q',
-        description: 'Số lần bạn chia sẻ thành tựu cá nhân trong tháng',
-        rationale: 'Ghi nhận sự tự hào, lan tỏa tinh thần tích cực và khích lệ người khác cùng cố gắng. Thành tựu nên được vinh danh – để cùng nhau chạm mốc cao hơn.',
+        category: 'Metric',
+        description: 'Số lần được vinh danh hoặc chia sẻ thành tựu',
+        rationale: 'Lan tỏa niềm tự hào và động lực.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
       },
+      {
+        key: 'innovation_lab_ideas',
+        label: 'Innovation Lab',
+        unit: 'ideas',
+        category: 'Metric',
+        description: 'Số ý tưởng đóng góp cho Innovation Lab',
+        rationale: 'Tư duy đổi mới và cải tiến quy trình.',
+        externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
+      },
+      {
+        key: 'team_chat',
+        label: 'Team Chat',
+        unit: 'msgs',
+        category: 'Metric',
+        description: 'Tin nhắn trong nhóm chat công khai',
+        rationale: 'Sự sôi nổi và minh bạch trong giao tiếp.',
+        externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
+      },
+      {
+        key: 'private_chat',
+        label: 'Private Chat',
+        unit: 'msgs',
+        category: 'Metric',
+        description: 'Tin nhắn riêng tư với đồng nghiệp',
+        rationale: 'Sự kết nối cá nhân và hỗ trợ trực tiếp.',
+        externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
+      },
+      {
+        key: 'reply_messages',
+        label: 'Reply Messages',
+        unit: 'msgs',
+        category: 'Metric',
+        description: 'Số lần trả lời tin nhắn',
+        rationale: 'Sự phản hồi và quan tâm đến người khác.',
+        externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
+      },
+      {
+        key: 'mostFavorite',
+        label: 'Most Favorite Staff',
+        unit: 'votes',
+        category: 'Assessment',
+        description: 'Hạng mục nhân sự được yêu thích nhất (Bình chọn cuối năm)',
+        rationale: 'Sự tín nhiệm và yêu mến từ đồng nghiệp.',
+        externalUrl: ''
+      },
+      {
+        key: 'mostInfluential',
+        label: 'Most Influential Staff',
+        unit: 'votes',
+        category: 'Assessment',
+        description: 'Hạng mục nhân sự có sức ảnh hưởng nhất (Bình chọn cuối năm)',
+        rationale: 'Tầm ảnh hưởng và khả năng dẫn dắt, truyền cảm hứng.',
+        externalUrl: ''
+      }
     ];
 
   const currentOption = rankingOptions.find(o => o.key === selectedMetric) || rankingOptions[0];
@@ -176,7 +201,7 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
             <BarChart2 className="text-primary" />
             Global Ranking
           </h2>
-          <p className="text-slate-400 text-sm mt-1">Deep dive into specific metrics across the entire organization.</p>
+          <p className="text-slate-400 text-sm mt-1">Comparision based on 13 Rank Metrics</p>
         </div>
 
         <div className="flex items-center glass px-4 py-2 rounded-lg border border-white/10">
@@ -186,25 +211,29 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
             value={selectedMetric}
             onChange={(e) => setSelectedMetric(e.target.value as keyof AggregatedMetrics)}
           >
-            <optgroup label="Category A (Availability)" className="bg-slate-900 text-slate-400 font-semibold py-1">
+            <option value="total_rank_score" className="bg-slate-900 text-emerald-400 font-bold">★ Total Rank Score</option>
+            <optgroup label="Productivity Metrics">
+              <option value="total_tasks_done" className="bg-slate-900 text-white">Tasks Done</option>
               <option value="available_minutes" className="bg-slate-900 text-white">Available Minutes</option>
-              <option value="weekly_meeting_count" className="bg-slate-900 text-white">Weekly Meeting</option>
+              <option value="weekly_meeting_attendance" className="bg-slate-900 text-white">Meeting Attendance</option>
+              <option value="weekly_meeting_count" className="bg-slate-900 text-white">Weekly Meetings</option>
             </optgroup>
-            <optgroup label="Category P (Performance)" className="bg-slate-900 text-slate-400 font-semibold py-1">
-              <option value="total_tasks_done" className="bg-slate-900 text-white">Total Tasks Done</option>
-              <option value="team_chat" className="bg-slate-900 text-white">Team Chat (Public)</option>
-              <option value="private_chat" className="bg-slate-900 text-white">Team Chat (Private)</option>
-              <option value="reply_messages" className="bg-slate-900 text-white">Reply Messages</option>
-              <option value="weekly_meeting_attendance" className="bg-slate-900 text-white">Meeting Count</option>
+            <optgroup label="Communication Metrics">
+              <option value="team_chat" className="bg-slate-900 text-white">Team Chat</option>
+              <option value="private_chat" className="bg-slate-900 text-white">Private Chat</option>
+              <option value="reply_messages" className="bg-slate-900 text-white">Replies</option>
             </optgroup>
-            <optgroup label="Tư duy & Kỹ năng (Category Q)" className="bg-slate-900 text-slate-400 font-semibold py-1">
-              <option value="cat_q_score" className="bg-slate-900 text-purple-400 font-bold">★ Điểm Tổng CAT Q</option>
+            <optgroup label="Growth & Culture">
               <option value="learning_points" className="bg-slate-900 text-white">Learning Points</option>
-              <option value="training_points" className="bg-slate-900 text-white">Training Points</option>
               <option value="creative_points" className="bg-slate-900 text-white">Creative Points</option>
+              <option value="training_points" className="bg-slate-900 text-white">Training Points</option>
               <option value="hello_hub" className="bg-slate-900 text-white">Hello Hub</option>
-              <option value="innovation_lab_ideas" className="bg-slate-900 text-white">Innovation Lab</option>
               <option value="hall_of_fame" className="bg-slate-900 text-white">Hall of Fame</option>
+              <option value="innovation_lab_ideas" className="bg-slate-900 text-white">Innovation Lab</option>
+            </optgroup>
+            <optgroup label="Year-End Assessment">
+              <option value="mostFavorite" className="bg-slate-900 text-white">Most Favorite</option>
+              <option value="mostInfluential" className="bg-slate-900 text-white">Most Influential</option>
             </optgroup>
           </select>
         </div>
@@ -218,12 +247,12 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
               <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold">
                 {currentOption.category}
               </span>
-              Giải thích dễ hiểu
+              Giải thích
             </h4>
             <p className="text-white text-sm leading-relaxed">{currentOption.description}</p>
           </div>
           <div className="flex-1">
-            <h4 className="text-primary font-bold text-sm uppercase tracking-wider mb-2">Vì sao cần đo lường?</h4>
+            <h4 className="text-primary font-bold text-sm uppercase tracking-wider mb-2">Ý nghĩa</h4>
             <p className="text-slate-400 text-sm leading-relaxed italic">"{currentOption.rationale}"</p>
           </div>
 
@@ -237,7 +266,7 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
               >
                 <BarChart2 className="text-primary group-hover:scale-110 transition-transform" size={18} />
                 <span className="text-[10px] uppercase font-bold text-slate-400 group-hover:text-white transition-colors">
-                  Đối chiếu dữ liệu
+                  Đối chiếu
                 </span>
               </a>
             )}
@@ -252,7 +281,7 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
                 <Copy className="text-primary group-hover:scale-110 transition-transform" size={18} />
               )}
               <span className="text-[10px] uppercase font-bold text-slate-400 group-hover:text-white transition-colors">
-                {copied ? 'Đã sao chép!' : 'Copy dữ liệu bảng'}
+                {copied ? 'Đã sao chép!' : 'Copy dữ liệu'}
               </span>
             </button>
           </div>
@@ -264,14 +293,10 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
           {sortedData.map((item, index) => {
             const value = item[selectedMetric] as number;
 
-            // Handle percentage for 1-5 scale vs raw metrics
-            let percentage = 0;
-            const isScore = selectedMetric.includes('score');
-            if (isScore) {
-              percentage = (value / 5) * 100;
-            } else {
-              percentage = (value / maxValue) * 100;
-            }
+            // Handle percentage for Scale vs raw metrics
+            // For Total Rank Score, we use the scaling relative to max value
+            const percentage = (value / maxValue) * 100;
+            const isScore = selectedMetric === 'total_rank_score';
 
             const option = rankingOptions.find(o => o.key === selectedMetric);
 
@@ -298,15 +323,15 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
                 {/* Bar Chart */}
                 <div className="flex-1 h-8 bg-slate-800/50 rounded-full overflow-hidden relative">
                   <div
-                    className={`h-full bg-gradient-to-r ${isScore ? 'from-primary to-emerald-400' : 'from-blue-600 to-primary'} rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2`}
-                    style={{ width: `${percentage}%` }}
+                    className={`h-full bg-gradient-to-r ${isScore ? 'from-emerald-500 to-primary' : 'from-blue-600 to-primary'} rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2`}
+                    style={{ width: `${percentage || 1}%` }} // Minimal width for visibility
                   >
                   </div>
-                  {/* Value inside bar or outside depending on width - simplifying to absolute right for aesthetics */}
+                  {/* Value */}
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-white drop-shadow-md">
-                    {isScore ? value.toFixed(1) : value.toLocaleString()}
+                    {isScore ? value.toFixed(4) : value.toLocaleString()}
                     <span className="text-[10px] font-normal opacity-80 ml-1">
-                      {isScore ? '/ 5.0' : option?.unit}
+                      {option?.unit}
                     </span>
                   </div>
                 </div>

@@ -1,5 +1,5 @@
 import { supabase } from './supabaseClient';
-import { AggregatedMetrics, DateRange, StaffInfo, Kudos, HistoryPoint, DailyPresence, ActivityHeatmapPoint } from '../types';
+import { AggregatedMetrics, DateRange, StaffInfo, Kudos, HistoryPoint, DailyPresence, ActivityHeatmapPoint, RawPresenceLog } from '../types';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from 'date-fns';
 
 // HELPER: Identity Resolution (Case Insensitive)
@@ -16,7 +16,7 @@ export const fetchCurrentUser = async (): Promise<StaffInfo> => {
 
   if (error) throw error;
   return {
-    id: data.id,
+    id: data.id || data.LARK_MAIL,
     name: data.NAME,
     lark_email: data.LARK_MAIL,
     ms_id: data.MS_ID,
@@ -35,7 +35,7 @@ export const fetchStaffList = async (): Promise<StaffInfo[]> => {
 
   if (error) throw error;
   return data.map((d: any) => ({
-    id: d.id,
+    id: d.id || d.LARK_MAIL,
     name: d.NAME,
     lark_email: d.LARK_MAIL,
     ms_id: d.MS_ID,
@@ -63,8 +63,14 @@ export const fetchAggregatedMetrics = async (range: DateRange): Promise<Aggregat
     .select('lark_email, learning_points, creative_points, training_points, hello_hub, hall_of_fame, innovation_lab')
     .lte('activity_date', endDateStr);
 
+  // FETCH ASSESSMENT DATA
+  const { data: assessmentData, error: assessmentError } = await supabase
+    .from('hr_year_end_assessment')
+    .select('*');
+
   if (reportError) throw reportError;
   if (qError) throw qError;
+  if (assessmentError) console.error('Error fetching assessments:', assessmentError);
 
   const staffList = await fetchStaffList();
 
@@ -73,6 +79,7 @@ export const fetchAggregatedMetrics = async (range: DateRange): Promise<Aggregat
     const staffEmail = normalize(staff.lark_email);
     const staffReport = reportData?.filter(r => normalize(r.lark_email) === staffEmail) || [];
     const staffCumQ = cumulativeQData?.filter(r => normalize(r.lark_email) === staffEmail) || [];
+    const staffAssessment = assessmentData?.find(a => normalize(a.name) === normalize(staff.name));
 
     return {
       staff,
@@ -94,6 +101,8 @@ export const fetchAggregatedMetrics = async (range: DateRange): Promise<Aggregat
         teamChat: staffReport.reduce((sum, r) => sum + (r.team_chat || 0), 0),
         privateChat: staffReport.reduce((sum, r) => sum + (r.private_chat || 0), 0),
         replies: staffReport.reduce((sum, r) => sum + (r.reply_messages || 0), 0),
+        mostFavorite: staffAssessment?.most_favorite || 0,
+        mostInfluential: staffAssessment?.most_influential || 0,
         messages: 0 // placeholder
       }
     };
@@ -103,7 +112,7 @@ export const fetchAggregatedMetrics = async (range: DateRange): Promise<Aggregat
     item.totals.messages = item.totals.teamChat + item.totals.privateChat + item.totals.replies;
   });
 
-  // 2. Calculate Company-Wide Averages
+  // 2. Calculate Company-Wide Averages (Legacy support)
   const n = rawData.length || 1;
   const companyAvg = {
     minutes: rawData.reduce((sum, d) => sum + d.totals.minutes, 0) / n,
@@ -116,11 +125,78 @@ export const fetchAggregatedMetrics = async (range: DateRange): Promise<Aggregat
     culture: rawData.reduce((sum, d) => sum + (d.totals.helloHub + d.totals.hallOfFame), 0) / n,
   };
 
+  // --- NEW RANK SCORING SYSTEM (13 Metrics) ---
+  const rankMetrics: (keyof typeof rawData[0]['totals'])[] = [
+    'tasks',
+    'meetings',       // Weekly Meeting Attendance (from Count)
+    'weeklyMeetings', // Weekly Meeting Log (Count)
+    'minutes',
+    'learning',
+    'creative',
+    'training',
+    'helloHub',
+    'hallOfFame',
+    'innovation',
+    'teamChat',
+    'privateChat',
+    'replies',
+    'mostFavorite',
+    'mostInfluential'
+  ];
+
+  // Helper to store scores for each staff
+  const staffRankScores: Record<string, Record<string, number>> = {};
+
+  rawData.forEach(d => {
+    staffRankScores[d.staff.id] = {};
+  });
+
+  rankMetrics.forEach(metric => {
+    // Sort descending
+    const sorted = [...rawData].sort((a, b) => b.totals[metric] - a.totals[metric]);
+
+    // 1. Find Max Value for this metric
+    const maxValue = sorted.length > 0 ? sorted[0].totals[metric] : 0;
+
+    // 2. Assign Scores based on % of Max Value
+    // Score = (Value / MaxValue) * Weight
+    const weight = metric === 'tasks' ? 0.2 : 0.1;
+
+    for (let i = 0; i < sorted.length; i++) {
+      const value = sorted[i].totals[metric];
+      let score = 0;
+      if (maxValue > 0) {
+        score = (value / maxValue) * weight;
+      }
+      staffRankScores[sorted[i].staff.id][metric] = score;
+    }
+  });
+  // --------------------------------------------
+
   // Helper to calculate 1-5 score: (Value / Avg) * 3, capped at 5
   const calcRelativeScore = (val: number, avg: number) => {
     if (avg <= 0) return val > 0 ? 3.0 : 0.0;
     return Math.min(5.0, Number(((val / avg) * 3.0).toFixed(1)));
   };
+
+  // 2.b FETCH PRESENCE LOGS (Optimized: Single query for the range)
+  const { data: presenceLogs, error: presenceError } = await supabase
+    .from('hr_presence_log')
+    .select('LARK_MAIL, "DATE TIME", activity')
+    .gte('"DATE TIME"', startDateStr) // Use string format for PG timestamp comparison if needed, or ISO
+    .lte('"DATE TIME"', endDateStr + 'T23:59:59'); // Cover full end day
+
+  if (presenceError) {
+    console.error('Error fetching presence logs:', presenceError);
+  }
+
+  // Organize logs by email for O(1) lookup
+  const staffPresenceMap: Record<string, RawPresenceLog[]> = {};
+  presenceLogs?.forEach((log: any) => {
+    const email = normalize(log.LARK_MAIL);
+    if (!staffPresenceMap[email]) staffPresenceMap[email] = [];
+    staffPresenceMap[email].push(log);
+  });
 
   // 3. Generate final AggregatedMetrics
   return rawData.map(({ staff, totals, report }) => {
@@ -153,24 +229,62 @@ export const fetchAggregatedMetrics = async (range: DateRange): Promise<Aggregat
       return { date: dayStr, minutes: mins, level };
     });
 
-    const activityHeatmap: ActivityHeatmapPoint[] = [];
-    for (let day = 0; day < 7; day++) {
-      for (let hour = 0; hour < 24; hour++) {
-        const d = new Date(); d.setHours(hour);
-        const dayMatch = ((d.getDay() + 6) % 7) === day;
-        let value = 0;
-        if (hour >= 9 && hour <= 18 && dayMatch) {
-          value = (totals.tasks + totals.teamChat) > 0 ? Math.floor(Math.random() * 5) : 0;
-        }
-        activityHeatmap.push({ dayIndex: day, hour: hour, value });
+    // 4. Activity Heatmap (From hr_presence_log using Pre-fetched Map)
+    const activityHeatmap: ActivityHeatmapPoint[] = Array.from({ length: 7 * 24 }, (_, i) => ({
+      dayIndex: Math.floor(i / 24),
+      hour: i % 24,
+      value: 0
+    }));
+
+    // Populate from Presence Logs
+    const staffEmail = normalize(staff.lark_email);
+    const logs = staffPresenceMap[staffEmail] || [];
+
+    logs.forEach(log => {
+      // Filter for active work only
+      const activeStatuses = ['Available', 'InAMeeting']; // Strict filtering to fix "All Green"
+      if (!activeStatuses.includes(log.activity)) return;
+
+      const date = new Date(log['DATE TIME']);
+      // Shift 0=Sun to 0=Mon
+      const dayIndex = (date.getDay() + 6) % 7;
+      const hour = date.getHours();
+      const index = dayIndex * 24 + hour;
+      if (activityHeatmap[index]) {
+        activityHeatmap[index].value += 1;
       }
-    }
+    });
+
+    // New Total Rank Score
+    const rankScores = staffRankScores[staff.id];
+    const totalRankScore = Object.values(rankScores).reduce((a, b) => a + b, 0);
 
     return {
       staffId: staff.id,
       staffName: staff.name,
       department: staff.department,
       avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(staff.name)}&background=00d26a&color=fff&bold=true`,
+
+      // New Rank Logic
+      total_rank_score: Number(totalRankScore.toFixed(4)),
+      rank_score_breakdown: {
+        tasks: rankScores['tasks'] || 0,
+        meetings: rankScores['meetings'] || 0,
+        weeklyMeetings: rankScores['weeklyMeetings'] || 0,
+        minutes: rankScores['minutes'] || 0,
+        learning: rankScores['learning'] || 0,
+        creative: rankScores['creative'] || 0,
+        training: rankScores['training'] || 0,
+        helloHub: rankScores['helloHub'] || 0,
+        hallOfFame: rankScores['hallOfFame'] || 0,
+        innovation: rankScores['innovation'] || 0,
+        teamChat: rankScores['teamChat'] || 0,
+        privateChat: rankScores['privateChat'] || 0,
+        replies: rankScores['replies'] || 0,
+        mostFavorite: rankScores['mostFavorite'] || 0,
+        mostInfluential: rankScores['mostInfluential'] || 0
+      },
+
       cat_a_score: scoreA,
       available_minutes: Math.round(totals.minutes),
       weekly_meeting_attendance: totals.meetings,
@@ -192,6 +306,8 @@ export const fetchAggregatedMetrics = async (range: DateRange): Promise<Aggregat
       hall_of_fame: totals.hallOfFame,
       innovation_lab_ideas: totals.innovation,
       salary: report.reduce((sum, r) => sum + (r.salary || 0), 0),
+      mostFavorite: totals.mostFavorite || 0,
+      mostInfluential: totals.mostInfluential || 0,
       mom_growth_a: 0,
       mom_growth_p: 0,
       mom_growth_q: 0,
