@@ -85,7 +85,7 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onCategoryCl
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {renderTable("Availability (Cat A)", metrics, "cat_a_score", "text-emerald-400", "available_minutes")}
         {renderTable("Performance (Cat P)", metrics, "cat_p_score", "text-sky-400", "total_tasks_done")}
-        {renderTable("Quality (Cat Q)", metrics, "cat_q_score", "text-purple-400", "diem_hoc_tap" as any)}
+        {renderTable("Quality (Cat Q)", metrics, "cat_q_score", "text-purple-400", "learning_points")}
       </div>
 
       {/* Scoring Formulas Section */}
