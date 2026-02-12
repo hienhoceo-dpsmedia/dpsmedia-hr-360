@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import { StaffInfo, AggregatedMetrics, DateRange, Kudos } from './types';
 import { fetchStaffList, fetchAggregatedMetrics, fetchCurrentUser, fetchKudos } from './services/dataService';
@@ -10,6 +10,7 @@ import GlobalRankingView from './views/GlobalRankingView';
 import MyDashboardView from './views/MyDashboardView';
 import DateRangePicker from './components/DateRangePicker';
 import { Filter, Sun, Moon, Menu, RefreshCw } from 'lucide-react';
+import { parseISO, isValid, format } from 'date-fns';
 
 const AppContent: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<StaffInfo | null>(null);
@@ -18,6 +19,7 @@ const AppContent: React.FC = () => {
   const [myKudos, setMyKudos] = useState<Kudos[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // UI State
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -27,12 +29,58 @@ const AppContent: React.FC = () => {
   // Filters
   const [selectedDept, setSelectedDept] = useState<string>('All');
 
-  // Date Logic: Default to "This Month" (1st to Today)
+  // Date Logic: Default to "This Month" unless specified in URL
   const [dateRange, setDateRange] = useState<DateRange>(() => {
+    const startParam = searchParams.get('start');
+    const endParam = searchParams.get('end');
+
+    if (startParam && endParam) {
+      const start = parseISO(startParam);
+      const end = parseISO(endParam);
+      if (isValid(start) && isValid(end)) {
+        return { startDate: start, endDate: end };
+      }
+    }
+
     const end = new Date();
     const start = new Date(end.getFullYear(), end.getMonth(), 1);
     return { startDate: start, endDate: end };
   });
+
+  // Sync URL -> State (when URL changes externally or on mount)
+  useEffect(() => {
+    const startParam = searchParams.get('start');
+    const endParam = searchParams.get('end');
+
+    if (startParam && endParam) {
+      const start = parseISO(startParam);
+      const end = parseISO(endParam);
+      if (isValid(start) && isValid(end)) {
+        const startStr = format(dateRange.startDate, 'yyyy-MM-dd');
+        const endStr = format(dateRange.endDate, 'yyyy-MM-dd');
+
+        // Only update state if URL is actually different from current state
+        if (startParam !== startStr || endParam !== endStr) {
+          setDateRange({ startDate: start, endDate: end });
+        }
+      }
+    }
+  }, [searchParams]);
+
+  // Sync State -> URL (when user picks a date in the UI)
+  useEffect(() => {
+    const startStr = format(dateRange.startDate, 'yyyy-MM-dd');
+    const endStr = format(dateRange.endDate, 'yyyy-MM-dd');
+
+    // Only update URL if different from current state to avoid infinite loops
+    if (searchParams.get('start') !== startStr || searchParams.get('end') !== endStr) {
+      setSearchParams(prev => {
+        prev.set('start', startStr);
+        prev.set('end', endStr);
+        return prev;
+      }, { replace: true });
+    }
+  }, [dateRange, setSearchParams, searchParams]);
 
   // Toggle Theme
   useEffect(() => {
