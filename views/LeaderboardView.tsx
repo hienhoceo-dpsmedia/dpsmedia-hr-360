@@ -46,7 +46,7 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics }) => {
         <div>
           <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
             <Trophy className="text-yellow-500" size={32} />
-            HR Excellence Leaderboard
+            Bảng xếp hạng HR Excellence
           </h2>
           <p className="text-slate-400 mt-2">Vinh danh những cá nhân xuất sắc nhất dựa trên tổng điểm xếp hạng 15 chỉ số toàn diện.</p>
         </div>
@@ -56,7 +56,7 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics }) => {
           className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors border border-slate-700"
         >
           {copied ? <Check size={18} className="text-emerald-500" /> : <Copy size={18} />}
-          <span className="text-sm font-medium">{copied ? 'Copied!' : 'Copy Data'}</span>
+          <span className="text-sm font-medium">{copied ? 'Đã sao chép!' : 'Sao chép dữ liệu'}</span>
         </button>
       </div>
 
@@ -77,7 +77,7 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics }) => {
             <h3 className="text-lg font-bold text-white mt-2">{top3[1].staffName}</h3>
             <p className="text-sm text-slate-400 mb-4">{top3[1].department}</p>
             <div className="text-3xl font-bold text-slate-300">{top3[1].total_rank_score.toFixed(4)}</div>
-            <p className="text-xs text-slate-500 uppercase tracking-wider mt-1">Total Score</p>
+            <p className="text-xs text-slate-500 uppercase tracking-wider mt-1">Tổng điểm</p>
           </div>
         )}
 
@@ -93,13 +93,13 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics }) => {
             <div className="relative mb-4 mt-4">
               <img src={top3[0].avatarUrl} alt="" className="w-24 h-24 rounded-full border-4 border-yellow-500 shadow-yellow-500/20 shadow-xl" />
               <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-yellow-500 text-yellow-950 font-bold px-4 py-1 rounded-full text-sm shadow-md">
-                #1 CHAMPION
+                #1
               </div>
             </div>
             <h3 className="text-xl font-bold text-white mt-2 text-center">{top3[0].staffName}</h3>
             <p className="text-sm text-yellow-200/70 mb-4">{top3[0].department}</p>
             <div className="text-4xl font-bold text-yellow-400">{top3[0].total_rank_score.toFixed(4)}</div>
-            <p className="text-xs text-yellow-500/50 uppercase tracking-wider mt-1">Total Score</p>
+            <p className="text-xs text-yellow-500/50 uppercase tracking-wider mt-1">Tổng điểm</p>
           </div>
         )}
 
@@ -118,7 +118,7 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics }) => {
             <h3 className="text-lg font-bold text-white mt-2">{top3[2].staffName}</h3>
             <p className="text-sm text-slate-400 mb-4">{top3[2].department}</p>
             <div className="text-3xl font-bold text-orange-500">{top3[2].total_rank_score.toFixed(4)}</div>
-            <p className="text-xs text-slate-500 uppercase tracking-wider mt-1">Total Score</p>
+            <p className="text-xs text-slate-500 uppercase tracking-wider mt-1">Tổng điểm</p>
           </div>
         )}
       </div>
@@ -126,7 +126,7 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics }) => {
       {/* Existing List for the Rest */}
       <div className="glass-panel rounded-2xl overflow-hidden">
         <div className="p-6 border-b border-white/5">
-          <h3 className="text-lg font-bold text-white">Full Rankings</h3>
+          <h3 className="text-lg font-bold text-white">Bảng xếp hạng đầy đủ</h3>
         </div>
         <div className="bg-slate-900/30">
           {rest.map((item, index) => (
@@ -145,7 +145,7 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics }) => {
               </div>
               <div className="text-right">
                 <div className="text-xl font-bold text-emerald-400">{item.total_rank_score.toFixed(4)}</div>
-                <div className="text-[10px] text-slate-600 uppercase">Points</div>
+                <div className="text-[10px] text-slate-600 uppercase">Điểm</div>
               </div>
             </div>
           ))}

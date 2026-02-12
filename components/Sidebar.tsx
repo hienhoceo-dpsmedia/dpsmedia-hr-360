@@ -13,12 +13,12 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ currentUser, onLogout, isOpen, onClose }) => {
 
   const menuItems: { path: string; label: string; icon: React.ReactNode; adminOnly?: boolean }[] = [
-    // { path: '/my-dashboard', label: 'My Dashboard', icon: <UserCheck size={20} /> }, // Hidden per user request
-    { path: '/', label: 'Leaderboard', icon: <Trophy size={20} /> },
-    { path: '/global-ranking', label: 'Global Ranking', icon: <BarChart2 size={20} /> },
+    // { path: '/my-dashboard', label: 'Tổng quan của tôi', icon: <UserCheck size={20} /> }, // Hidden per user request
+    { path: '/', label: 'Bảng xếp hạng', icon: <Trophy size={20} /> },
+    { path: '/global-ranking', label: 'Xếp hạng chung', icon: <BarChart2 size={20} /> },
     // Admin Only Items
-    { path: '/individual', label: 'Staff Management', icon: <Users size={20} />, adminOnly: true },
-    { path: '/comparison', label: 'Comparison', icon: <LayoutDashboard size={20} />, adminOnly: true },
+    { path: '/individual', label: 'Quản lý nhân sự', icon: <Users size={20} />, adminOnly: true },
+    { path: '/comparison', label: 'So sánh', icon: <LayoutDashboard size={20} />, adminOnly: true },
   ];
 
   // Filter menu based on role
@@ -48,7 +48,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentUser, onLogout, isOpen, onClos
                 dps<span className="text-primary">.media</span>
               </h1>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest pl-10">HR Intelligence</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest pl-10">Báo cáo nhân sự</p>
           </div>
           {/* Mobile Close Button */}
           <button onClick={onClose} className="lg:hidden text-slate-500 hover:text-white">

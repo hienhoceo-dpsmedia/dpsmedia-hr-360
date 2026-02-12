@@ -24,9 +24,9 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
   }[] = [
       {
         key: 'total_rank_score',
-        label: 'Total Rank Score',
+        label: 'Tổng điểm xếp hạng',
         unit: 'pts',
-        category: 'Overall',
+        category: 'Tổng quan',
         description: 'Tổng điểm xếp hạng dựa trên 15 chỉ số. Công thức: Score = Sum(0.1 / Rank).',
         rationale: 'Đánh giá tổng quan vị thế của nhân sự trên mọi mặt trận. Càng đứng đầu nhiều chỉ số, điểm càng cao.',
         externalUrl: ''
@@ -34,63 +34,63 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
       // Rank Metrics
       {
         key: 'total_tasks_done',
-        label: 'Total Tasks Done',
+        label: 'Công việc hoàn thành',
         unit: 'tasks',
-        category: 'Metric',
+        category: 'Chỉ số',
         description: 'Tổng số công việc đã hoàn thành trong tháng',
         rationale: 'Đo mức độ hiệu quả và kết quả công việc hàng tháng.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/5d0b4520-0bb3-4887-a654-4d49f55ffe57'
       },
       {
         key: 'weekly_meeting_attendance',
-        label: 'Weekly Meeting Attendance',
+        label: 'Họp định kỳ',
         unit: 'mtgs',
-        category: 'Metric',
+        category: 'Chỉ số',
         description: 'Số lượng cuộc họp bạn tham gia trong tháng (từ Teams)',
         rationale: 'Cho biết mức độ bạn tham gia vào quá trình ra quyết định và thảo luận.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
       },
       {
         key: 'weekly_meeting_count',
-        label: 'Weekly Meeting Count',
+        label: 'Số buổi họp',
         unit: 'cnt',
-        category: 'Metric',
+        category: 'Chỉ số',
         description: 'Số lần tham gia họp Weekly tối thứ 3',
         rationale: 'Sự cam kết với hoạt động chung quan trọng nhất của công ty.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/1ec9923c-fcbd-488c-96c8-964d4fa045c7'
       },
       {
         key: 'available_minutes',
-        label: 'Available Minutes',
+        label: 'Thời gian online',
         unit: 'mins',
-        category: 'Metric',
+        category: 'Chỉ số',
         description: 'Tổng thời gian online trong giờ hành chín',
         rationale: 'Đo lường sự hiện diện và sẵn sàng của nhân sự.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/8f76d289-af5a-4f65-bea5-f540c90da203'
       },
       {
         key: 'learning_points',
-        label: 'Learning Points',
+        label: 'Điểm học tập',
         unit: 'pts',
-        category: 'Metric',
+        category: 'Chỉ số',
         description: 'Điểm học tập trên hệ thống Lifelong Learning',
         rationale: 'Tinh thần tự học và phát triển bản thân.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/51aedbf2-83d5-4a0d-83aa-6dce3e58f5d8'
       },
       {
         key: 'creative_points',
-        label: 'Creative Points',
+        label: 'Điểm sáng tạo',
         unit: 'pts',
-        category: 'Metric',
+        category: 'Chỉ số',
         description: 'Điểm sáng tạo (bài viết, chia sẻ) trên hệ thống',
         rationale: 'Khả năng đóng góp tri thức cho tổ chức.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/51aedbf2-83d5-4a0d-83aa-6dce3e58f5d8'
       },
       {
         key: 'training_points',
-        label: 'Training Points',
+        label: 'Điểm rèn luyện',
         unit: 'pts',
-        category: 'Metric',
+        category: 'Chỉ số',
         description: 'Điểm rèn luyện (tương tác) trên hệ thống',
         rationale: 'Sự tích cực tham gia vào cộng đồng học tập.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/51aedbf2-83d5-4a0d-83aa-6dce3e58f5d8'
@@ -99,16 +99,16 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
         key: 'hello_hub',
         label: 'Hello Hub',
         unit: 'cnt',
-        category: 'Metric',
+        category: 'Chỉ số',
         description: 'Số lần điểm danh Hello Hub',
         rationale: 'Kỷ luật và thói quen tích cực đầu ngày.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
       },
       {
         key: 'hall_of_fame',
-        label: 'Hall of Fame',
+        label: 'Fame',
         unit: 'times',
-        category: 'Metric',
+        category: 'Chỉ số',
         description: 'Số lần được vinh danh hoặc chia sẻ thành tựu',
         rationale: 'Lan tỏa niềm tự hào và động lực.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
@@ -117,52 +117,52 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
         key: 'innovation_lab_ideas',
         label: 'Innovation Lab',
         unit: 'ideas',
-        category: 'Metric',
+        category: 'Chỉ số',
         description: 'Số ý tưởng đóng góp cho Innovation Lab',
         rationale: 'Tư duy đổi mới và cải tiến quy trình.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
       },
       {
         key: 'team_chat',
-        label: 'Team Chat',
+        label: 'Chat nhóm',
         unit: 'msgs',
-        category: 'Metric',
+        category: 'Chỉ số',
         description: 'Tin nhắn trong nhóm chat công khai',
         rationale: 'Sự sôi nổi và minh bạch trong giao tiếp.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
       },
       {
         key: 'private_chat',
-        label: 'Private Chat',
+        label: 'Chat riêng',
         unit: 'msgs',
-        category: 'Metric',
+        category: 'Chỉ số',
         description: 'Tin nhắn riêng tư với đồng nghiệp',
         rationale: 'Sự kết nối cá nhân và hỗ trợ trực tiếp.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
       },
       {
         key: 'reply_messages',
-        label: 'Reply Messages',
+        label: 'Phản hồi',
         unit: 'msgs',
-        category: 'Metric',
+        category: 'Chỉ số',
         description: 'Số lần trả lời tin nhắn',
         rationale: 'Sự phản hồi và quan tâm đến người khác.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
       },
       {
         key: 'mostFavorite',
-        label: 'Most Favorite Staff',
+        label: 'Nhân sự yêu thích nhất',
         unit: 'votes',
-        category: 'Assessment',
+        category: 'Đánh giá',
         description: 'Hạng mục nhân sự được yêu thích nhất (Bình chọn cuối năm)',
         rationale: 'Sự tín nhiệm và yêu mến từ đồng nghiệp.',
         externalUrl: ''
       },
       {
         key: 'mostInfluential',
-        label: 'Most Influential Staff',
+        label: 'Nhân sự có sức ảnh hưởng nhất',
         unit: 'votes',
-        category: 'Assessment',
+        category: 'Đánh giá',
         description: 'Hạng mục nhân sự có sức ảnh hưởng nhất (Bình chọn cuối năm)',
         rationale: 'Tầm ảnh hưởng và khả năng dẫn dắt, truyền cảm hứng.',
         externalUrl: ''
@@ -199,9 +199,9 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
             <BarChart2 className="text-primary" />
-            Global Ranking
+            Xếp hạng chung
           </h2>
-          <p className="text-slate-400 text-sm mt-1">Comparision based on 13 Rank Metrics</p>
+          <p className="text-slate-400 text-sm mt-1">So sánh dựa trên 15 chỉ số xếp hạng</p>
         </div>
 
         <div className="flex items-center glass px-4 py-2 rounded-lg border border-white/10">
@@ -211,29 +211,29 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
             value={selectedMetric}
             onChange={(e) => setSelectedMetric(e.target.value as keyof AggregatedMetrics)}
           >
-            <option value="total_rank_score" className="bg-slate-900 text-emerald-400 font-bold">★ Total Rank Score</option>
-            <optgroup label="Productivity Metrics">
-              <option value="total_tasks_done" className="bg-slate-900 text-white">Tasks Done</option>
-              <option value="available_minutes" className="bg-slate-900 text-white">Available Minutes</option>
-              <option value="weekly_meeting_attendance" className="bg-slate-900 text-white">Meeting Attendance</option>
-              <option value="weekly_meeting_count" className="bg-slate-900 text-white">Weekly Meetings</option>
+            <option value="total_rank_score" className="bg-slate-900 text-emerald-400 font-bold">★ Tổng điểm xếp hạng</option>
+            <optgroup label="Chỉ số hiệu suất">
+              <option value="total_tasks_done" className="bg-slate-900 text-white">Công việc hoàn thành</option>
+              <option value="available_minutes" className="bg-slate-900 text-white">Thời gian online</option>
+              <option value="weekly_meeting_attendance" className="bg-slate-900 text-white">Họp định kỳ</option>
+              <option value="weekly_meeting_count" className="bg-slate-900 text-white">Số buổi họp</option>
             </optgroup>
-            <optgroup label="Communication Metrics">
-              <option value="team_chat" className="bg-slate-900 text-white">Team Chat</option>
-              <option value="private_chat" className="bg-slate-900 text-white">Private Chat</option>
-              <option value="reply_messages" className="bg-slate-900 text-white">Replies</option>
+            <optgroup label="Chỉ số giao tiếp">
+              <option value="team_chat" className="bg-slate-900 text-white">Chat nhóm</option>
+              <option value="private_chat" className="bg-slate-900 text-white">Chat riêng</option>
+              <option value="reply_messages" className="bg-slate-900 text-white">Phản hồi</option>
             </optgroup>
-            <optgroup label="Growth & Culture">
-              <option value="learning_points" className="bg-slate-900 text-white">Learning Points</option>
-              <option value="creative_points" className="bg-slate-900 text-white">Creative Points</option>
-              <option value="training_points" className="bg-slate-900 text-white">Training Points</option>
+            <optgroup label="Phát triển & Văn hóa">
+              <option value="learning_points" className="bg-slate-900 text-white">Điểm học tập</option>
+              <option value="creative_points" className="bg-slate-900 text-white">Điểm sáng tạo</option>
+              <option value="training_points" className="bg-slate-900 text-white">Điểm rèn luyện</option>
               <option value="hello_hub" className="bg-slate-900 text-white">Hello Hub</option>
-              <option value="hall_of_fame" className="bg-slate-900 text-white">Hall of Fame</option>
+              <option value="hall_of_fame" className="bg-slate-900 text-white">Fame</option>
               <option value="innovation_lab_ideas" className="bg-slate-900 text-white">Innovation Lab</option>
             </optgroup>
-            <optgroup label="Year-End Assessment">
-              <option value="mostFavorite" className="bg-slate-900 text-white">Most Favorite</option>
-              <option value="mostInfluential" className="bg-slate-900 text-white">Most Influential</option>
+            <optgroup label="Đánh giá cuối năm">
+              <option value="mostFavorite" className="bg-slate-900 text-white">Yêu thích nhất</option>
+              <option value="mostInfluential" className="bg-slate-900 text-white">Ảnh hưởng nhất</option>
             </optgroup>
           </select>
         </div>

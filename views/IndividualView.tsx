@@ -22,10 +22,10 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
     }
   }, [staffList, selectedStaffId, initialStaffId]);
 
-  if (loading) return <div className="text-slate-900 dark:text-white">Loading data...</div>;
+  if (loading) return <div className="text-slate-900 dark:text-white font-medium">Đang tải dữ liệu...</div>;
 
   const currentMetrics = metrics.find(m => m.staffId === selectedStaffId);
-  if (!currentMetrics) return <div className="text-slate-400">Select a staff member to view details.</div>;
+  if (!currentMetrics) return <div className="text-slate-400">Vui lòng chọn một nhân sự để xem chi tiết.</div>;
 
   // Calculate Global Rank
   const sortedMetrics = [...metrics].sort((a, b) => b.total_rank_score - a.total_rank_score);
@@ -38,19 +38,19 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
   // Helper to get metric label
   const getLabel = (key: string) => {
     const map: Record<string, string> = {
-      total_tasks_done: 'Tasks Completed',
-      weekly_meeting_attendance: 'Meeting Attendance',
-      weekly_meeting_count: 'Weekly Meetings',
-      available_minutes: 'Available Minutes',
-      team_chat: 'Team Chat',
-      private_chat: 'Private Chat',
-      reply_messages: 'Reply Messages',
-      learning_points: 'Learning Points',
-      creative_points: 'Creative Points',
-      training_points: 'Training Points',
-      hello_hub: 'Hello Hub',
-      hall_of_fame: 'Hall of Fame',
-      innovation_lab_ideas: 'Innovation Ideas'
+      total_tasks_done: 'Công việc hoàn thành',
+      weekly_meeting_attendance: 'Họp định kỳ',
+      weekly_meeting_count: 'Số buổi họp',
+      available_minutes: 'Thời gian online',
+      team_chat: 'Chat nhóm công khai',
+      private_chat: 'Chat riêng tư',
+      reply_messages: 'Phản hồi tin nhắn',
+      learning_points: 'Điểm học tập',
+      creative_points: 'Điểm sáng tạo',
+      training_points: 'Điểm rèn luyện',
+      hello_hub: 'Điểm danh Hello Hub',
+      hall_of_fame: 'Vinh danh (Fame)',
+      innovation_lab_ideas: 'Ý tưởng cải tiến'
     };
     return map[key] || key;
   };
@@ -108,27 +108,25 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
             className="flex items-center justify-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2.5 rounded-lg font-bold hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors w-full sm:w-auto"
           >
             <Download size={18} />
-            <span>Export Report</span>
+            <span>Xuất báo cáo</span>
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        {/* Left Column: Total Score & Breakdown */}
-        <div className="lg:col-span-8 space-y-6">
-
-          {/* Total Score Card */}
+        {/* Total Score Card */}
+        <div className="lg:col-span-12">
           <div className="glass-panel p-6 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 border border-white/10">
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="text-slate-400 text-sm uppercase tracking-wider font-bold mb-1">Total Rank Score</h3>
+                <h3 className="text-slate-400 text-sm uppercase tracking-wider font-bold mb-1">Tổng điểm xếp hạng</h3>
                 <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
                   {currentMetrics.total_rank_score.toFixed(4)}
                 </div>
               </div>
               <div className="text-right">
-                <h3 className="text-slate-400 text-sm uppercase tracking-wider font-bold mb-1">Global Rank</h3>
+                <h3 className="text-slate-400 text-sm uppercase tracking-wider font-bold mb-1">Hạng chung</h3>
                 <div className="text-4xl font-bold text-white flex items-center justify-end gap-2">
                   <Trophy size={32} className="text-yellow-500" />
                   #{globalRank}
@@ -136,41 +134,57 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Metrics List */}
+        {/* Working Habits full-width */}
+        <div className="lg:col-span-12 space-y-6">
+          <div className="glass-panel p-6 rounded-2xl h-fit">
+            <div className="flex items-center gap-2 mb-4 text-lg font-bold text-white">
+              <Activity size={20} className="text-primary" />
+              <span>Thói quen làm việc</span>
+            </div>
+            <ActivityHeatmap data={currentMetrics.activity_heatmap} />
+            <p className="text-xs text-slate-400 mt-4 text-center italic">
+              Dựa trên phân bổ thời gian online trong tuần.
+            </p>
+          </div>
+        </div>
+
+        {/* Metrics List full-width */}
+        <div className="lg:col-span-12">
           <div className="glass-panel rounded-2xl overflow-hidden">
             <div className="p-4 border-b border-white/5 bg-slate-900/50 flex items-center gap-2">
               <Activity size={18} className="text-primary" />
-              <h3 className="text-lg font-bold text-white">Performance Breakdown (13 Metrics)</h3>
+              <h3 className="text-lg font-bold text-white">Chi tiết hiệu suất (15 chỉ số)</h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left">
                 <thead className="text-xs uppercase text-slate-500 bg-white/5">
                   <tr>
-                    <th className="px-6 py-3">Metric</th>
-                    <th className="px-6 py-3 text-right">Target / Value</th>
-                    <th className="px-6 py-3 text-center">Rank</th>
-                    <th className="px-6 py-3 text-right">Score Contribution</th>
+                    <th className="px-6 py-3">Chỉ số</th>
+                    <th className="px-6 py-3 text-right">Giá trị</th>
+                    <th className="px-6 py-3 text-center">Hạng</th>
+                    <th className="px-6 py-3 text-right">Điểm đóng góp</th>
                   </tr>
                 </thead>
                 <tbody>
                   {currentMetrics.rank_score_breakdown ? (() => {
                     const mapping: Record<string, { label: string, valueKey: keyof AggregatedMetrics, unit: string }> = {
-                      tasks: { label: 'Tasks Completed', valueKey: 'total_tasks_done', unit: 'tasks' },
-                      meetings: { label: 'Meeting Attendance', valueKey: 'weekly_meeting_attendance', unit: 'mtgs' },
-                      weeklyMeetings: { label: 'Weekly Meetings', valueKey: 'weekly_meeting_count', unit: 'cnt' },
-                      minutes: { label: 'Available Minutes', valueKey: 'available_minutes', unit: 'mins' },
-                      learning: { label: 'Learning Points', valueKey: 'learning_points', unit: 'pts' },
-                      creative: { label: 'Creative Points', valueKey: 'creative_points', unit: 'pts' },
-                      training: { label: 'Training Points', valueKey: 'training_points', unit: 'pts' },
-                      helloHub: { label: 'Hello Hub', valueKey: 'hello_hub', unit: 'cnt' },
-                      hallOfFame: { label: 'Hall of Fame', valueKey: 'hall_of_fame', unit: 'times' },
-                      innovation: { label: 'Innovation Lab', valueKey: 'innovation_lab_ideas', unit: 'ideas' },
-                      teamChat: { label: 'Team Chat', valueKey: 'team_chat', unit: 'msgs' },
-                      privateChat: { label: 'Private Chat', valueKey: 'private_chat', unit: 'msgs' },
-                      replies: { label: 'Reply Messages', valueKey: 'reply_messages', unit: 'msgs' },
-                      mostFavorite: { label: 'Most Favorite', valueKey: 'mostFavorite', unit: 'votes' },
-                      mostInfluential: { label: 'Most Influential', valueKey: 'mostInfluential', unit: 'votes' }
+                      tasks: { label: 'Công việc hoàn thành', valueKey: 'total_tasks_done', unit: 'tasks' },
+                      meetings: { label: 'Họp định kỳ', valueKey: 'weekly_meeting_attendance', unit: 'mtgs' },
+                      weeklyMeetings: { label: 'Số buổi họp', valueKey: 'weekly_meeting_count', unit: 'cnt' },
+                      minutes: { label: 'Thời gian online', valueKey: 'available_minutes', unit: 'mins' },
+                      learning: { label: 'Điểm học tập', valueKey: 'learning_points', unit: 'pts' },
+                      creative: { label: 'Điểm sáng tạo', valueKey: 'creative_points', unit: 'pts' },
+                      training: { label: 'Điểm rèn luyện', valueKey: 'training_points', unit: 'pts' },
+                      helloHub: { label: 'Điểm danh Hello Hub', valueKey: 'hello_hub', unit: 'cnt' },
+                      hallOfFame: { label: 'Vinh danh (Fame)', valueKey: 'hall_of_fame', unit: 'times' },
+                      innovation: { label: 'Ý tưởng cải tiến', valueKey: 'innovation_lab_ideas', unit: 'ideas' },
+                      teamChat: { label: 'Chat nhóm công khai', valueKey: 'team_chat', unit: 'msgs' },
+                      privateChat: { label: 'Chat riêng tư', valueKey: 'private_chat', unit: 'msgs' },
+                      replies: { label: 'Phản hồi tin nhắn', valueKey: 'reply_messages', unit: 'msgs' },
+                      mostFavorite: { label: 'Được yêu thích nhất', valueKey: 'mostFavorite', unit: 'votes' },
+                      mostInfluential: { label: 'Có sức ảnh hưởng nhất', valueKey: 'mostInfluential', unit: 'votes' }
                     };
 
                     return (Object.entries(currentMetrics.rank_score_breakdown) as [keyof typeof mapping, number][])
@@ -207,7 +221,7 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
                   })() : (
                     <tr>
                       <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
-                        No rank breakdown data available.
+                        Chưa có dữ liệu xếp hạng chi tiết.
                       </td>
                     </tr>
                   )}
@@ -215,34 +229,7 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
               </table>
             </div>
           </div>
-
         </div>
-
-        {/* Right Column: Heatmap & Insights */}
-        <div className="lg:col-span-4 space-y-6">
-          {/* 2D Activity Heatmap */}
-          <div className="glass-panel p-6 rounded-2xl h-fit">
-            <div className="flex items-center gap-2 mb-4 text-lg font-bold text-white">
-              <Activity size={20} className="text-primary" />
-              <span>Working Habits</span>
-            </div>
-            <ActivityHeatmap data={currentMetrics.activity_heatmap} />
-            <p className="text-xs text-slate-400 mt-4 text-center italic">
-              Based on available minutes distribution throughout the week.
-            </p>
-          </div>
-
-          <div className="glass-panel p-6 rounded-2xl border-l-4 border-l-yellow-500 bg-yellow-500/5">
-            <h4 className="flex items-center gap-2 font-bold text-yellow-500 mb-2">
-              <Star size={16} /> Insight
-            </h4>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              To improve your Total Rank Score, focus on improving metrics where you rank lower (e.g. Rank #{Math.round(0.1 / (Object.values(currentMetrics.rank_score_breakdown || {}).sort((a, b) => a - b)[0] || 0.01))}).
-              Moving from Rank 10 to Rank 5 doubles your score for that metric!
-            </p>
-          </div>
-        </div>
-
       </div>
     </div>
   );

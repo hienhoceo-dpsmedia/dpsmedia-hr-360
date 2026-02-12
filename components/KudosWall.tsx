@@ -18,12 +18,12 @@ const KudosWall: React.FC<KudosWallProps> = ({ kudos }) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold text-white">Wall of Love</h3>
+        <h3 className="text-lg font-bold text-white">Góc vinh danh</h3>
         <button className="text-xs bg-primary/20 text-primary px-3 py-1 rounded-full border border-primary/20 hover:bg-primary/30 transition-colors">
-          + Give Kudos
+          + Tặng Kudos
         </button>
       </div>
-      
+
       <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
         {kudos.length > 0 ? (
           kudos.map(k => (
@@ -31,10 +31,10 @@ const KudosWall: React.FC<KudosWallProps> = ({ kudos }) => {
               <img src={k.fromAvatar} alt={k.fromName} className="w-8 h-8 rounded-full border border-white/10" />
               <div className="flex-1">
                 <div className="flex justify-between items-start">
-                   <p className="text-sm font-bold text-white">{k.fromName}</p>
-                   <div className="flex items-center gap-1 bg-black/30 px-2 py-0.5 rounded text-[10px] text-slate-300">
-                     {getIcon(k.category)} {k.category}
-                   </div>
+                  <p className="text-sm font-bold text-white">{k.fromName}</p>
+                  <div className="flex items-center gap-1 bg-black/30 px-2 py-0.5 rounded text-[10px] text-slate-300">
+                    {getIcon(k.category)} {k.category}
+                  </div>
                 </div>
                 <p className="text-xs text-slate-400 mt-1 italic">"{k.message}"</p>
                 <p className="text-[10px] text-slate-600 mt-2 text-right">{k.date}</p>
@@ -42,7 +42,7 @@ const KudosWall: React.FC<KudosWallProps> = ({ kudos }) => {
             </div>
           ))
         ) : (
-          <div className="text-center py-8 text-slate-500 text-sm">No kudos yet. Be the first to appreciate someone!</div>
+          <div className="text-center py-8 text-slate-500 text-sm">Chưa có Kudos nào. Hãy là người đầu tiên gửi lời khen ngợi!</div>
         )}
       </div>
     </div>

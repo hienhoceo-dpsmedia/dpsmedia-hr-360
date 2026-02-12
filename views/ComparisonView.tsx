@@ -20,7 +20,7 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ staffList, metrics, isD
       if (selectedIds.length < 3) { // Limit to 3 for clear radar chart
         setSelectedIds([...selectedIds, id]);
       } else {
-        alert("Select maximum 3 staff members for clear comparison.");
+        alert("Chọn tối đa 3 nhân sự để so sánh rõ ràng nhất.");
       }
     }
   };
@@ -36,21 +36,21 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ staffList, metrics, isD
 
   // Defined 15 Metrics
   const metricKeys: { key: keyof AggregatedMetrics; label: string; max?: number }[] = [
-    { key: 'total_tasks_done', label: 'Tasks' },
-    { key: 'weekly_meeting_attendance', label: 'Mtgs' },
-    { key: 'weekly_meeting_count', label: 'W.Mtgs' },
-    { key: 'available_minutes', label: 'Mins' },
-    { key: 'learning_points', label: 'Learn' },
-    { key: 'creative_points', label: 'Create' },
-    { key: 'training_points', label: 'Train' },
-    { key: 'hello_hub', label: 'Hello' },
-    { key: 'hall_of_fame', label: 'Fame' },
-    { key: 'innovation_lab_ideas', label: 'Innov' },
-    { key: 'team_chat', label: 'Team' },
-    { key: 'private_chat', label: 'Priv' },
-    { key: 'reply_messages', label: 'Reply' },
-    { key: 'mostFavorite', label: 'Fave' },
-    { key: 'mostInfluential', label: 'Influ' },
+    { key: 'total_tasks_done', label: 'Công việc' },
+    { key: 'weekly_meeting_attendance', label: 'Họp định kỳ' },
+    { key: 'weekly_meeting_count', label: 'Số buổi họp' },
+    { key: 'available_minutes', label: 'Thời gian online' },
+    { key: 'learning_points', label: 'Học tập' },
+    { key: 'creative_points', label: 'Sáng tạo' },
+    { key: 'training_points', label: 'Rèn luyện' },
+    { key: 'hello_hub', label: 'Hello Hub' },
+    { key: 'hall_of_fame', label: 'Vinh danh' },
+    { key: 'innovation_lab_ideas', label: 'Cải tiến' },
+    { key: 'team_chat', label: 'Chat nhóm' },
+    { key: 'private_chat', label: 'Chat riêng' },
+    { key: 'reply_messages', label: 'Phản hồi' },
+    { key: 'mostFavorite', label: 'Yêu thích' },
+    { key: 'mostInfluential', label: 'Ảnh hưởng' },
   ];
 
   // RADAR DATA PREPARATION
@@ -77,20 +77,20 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ staffList, metrics, isD
       <div className="glass-panel p-6 rounded-2xl">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Staff Comparison</h2>
-            <p className="text-slate-500 dark:text-slate-400">Select up to 3 staff to compare across 15 metrics.</p>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">So sánh nhân sự</h2>
+            <p className="text-slate-500 dark:text-slate-400">Chọn tối đa 3 nhân sự để so sánh trên 15 chỉ số.</p>
           </div>
 
           <div className="flex items-center gap-4 w-full md:w-auto">
             <input
               type="text"
-              placeholder="Search staff..."
+              placeholder="Tìm kiếm nhân sự..."
               className="bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary w-full md:w-64"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             {selectedIds.length > 0 && (
-              <button onClick={clearSelection} className="text-xs font-bold text-red-500 hover:text-red-600 uppercase">Clear</button>
+              <button onClick={clearSelection} className="text-xs font-bold text-red-500 hover:text-red-600 uppercase">Xóa chọn</button>
             )}
           </div>
         </div>
@@ -118,8 +118,8 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ staffList, metrics, isD
 
           {/* RADAR CHART */}
           <div className="lg:col-span-4 glass-panel p-6 rounded-2xl h-[500px] flex flex-col">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 text-center">Performance Shape</h3>
-            <p className="text-xs text-center text-slate-500 mb-6">Normalized comparison (Relative Strength)</p>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 text-center">Hình thái hiệu suất</h3>
+            <p className="text-xs text-center text-slate-500 mb-6">So sánh chuẩn hóa (Sức mạnh tương đối)</p>
             <div className="flex-1 w-full relative">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
@@ -149,13 +149,13 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ staffList, metrics, isD
           {/* DETAILED TABLE */}
           <div className="lg:col-span-8 glass-panel p-0 rounded-2xl overflow-hidden">
             <div className="p-6 border-b border-white/5 bg-slate-50/50 dark:bg-slate-900/50">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Metric Breakdown</h3>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Chi tiết chỉ số</h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-slate-100 dark:bg-white/5 uppercase text-xs font-bold text-slate-500">
                   <tr>
-                    <th className="px-6 py-4 text-left">Metric</th>
+                    <th className="px-6 py-4 text-left">Chỉ số</th>
                     {selectedMetrics.map((m, idx) => (
                       <th key={m.staffId} className="px-6 py-4 text-right" style={{ color: colors[idx] }}>
                         <div className="flex flex-col items-end">
@@ -169,7 +169,7 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ staffList, metrics, isD
                 <tbody className="divide-y divide-slate-200 dark:divide-white/5">
                   {/* Total Score Row */}
                   <tr className="bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors">
-                    <td className="px-6 py-4 font-bold text-emerald-500">🏆 Total Rank Score</td>
+                    <td className="px-6 py-4 font-bold text-emerald-500">🏆 Tổng điểm xếp hạng</td>
                     {selectedMetrics.map(m => (
                       <td key={m.staffId} className="px-6 py-4 text-right font-bold text-lg text-emerald-500">
                         {m.total_rank_score.toFixed(4)}
@@ -207,8 +207,8 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ staffList, metrics, isD
           <div className="w-20 h-20 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-6">
             <Users size={32} className="text-slate-400" />
           </div>
-          <h3 className="text-xl font-bold text-slate-700 dark:text-white mb-2">Compare Staff Performance</h3>
-          <p className="text-slate-500 text-center max-w-md">Select staff members from the list above to compare their performance across all 15 key metrics.</p>
+          <h3 className="text-xl font-bold text-slate-700 dark:text-white mb-2">So sánh hiệu suất nhân sự</h3>
+          <p className="text-slate-500 text-center max-w-md">Chọn nhân sự từ danh sách trên để so sánh hiệu suất trên tất cả 15 chỉ số quan trọng.</p>
         </div>
       )}
     </div>

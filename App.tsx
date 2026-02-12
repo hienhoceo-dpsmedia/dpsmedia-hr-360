@@ -9,7 +9,7 @@ import LeaderboardView from './views/LeaderboardView';
 import GlobalRankingView from './views/GlobalRankingView';
 import MyDashboardView from './views/MyDashboardView';
 import DateRangePicker from './components/DateRangePicker';
-import { Filter, Sun, Moon, Menu, RefreshCw } from 'lucide-react';
+import { Filter, Sun, Moon, Menu, RefreshCw, HelpCircle, Info, CheckCircle2 } from 'lucide-react';
 import { parseISO, isValid, format } from 'date-fns';
 
 const AppContent: React.FC = () => {
@@ -25,6 +25,7 @@ const AppContent: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
 
   // Filters
   const [selectedDept, setSelectedDept] = useState<string>('All');
@@ -144,11 +145,11 @@ const AppContent: React.FC = () => {
 
   const getHeaderTitle = () => {
     const path = location.pathname;
-    if (path === '/my-dashboard') return 'My Overview';
-    if (path.startsWith('/individual')) return 'Staff Management';
-    if (path === '/comparison') return 'Metric Comparison';
-    if (path.startsWith('/global-ranking')) return 'Metric Deep Dive';
-    return 'Ranking Board';
+    if (path === '/my-dashboard') return 'Tổng quan của tôi';
+    if (path.startsWith('/individual')) return 'Quản lý nhân sự';
+    if (path === '/comparison') return 'So sánh chỉ số';
+    if (path.startsWith('/global-ranking')) return 'Chi tiết chỉ số';
+    return 'Bảng xếp hạng';
   };
 
   return (
@@ -182,11 +183,11 @@ const AppContent: React.FC = () => {
               <div className="flex items-center gap-2">
                 {isSyncing ? (
                   <span className="flex items-center gap-1 text-[10px] text-blue-500 font-medium">
-                    <RefreshCw size={10} className="animate-spin" /> Syncing DB...
+                    <RefreshCw size={10} className="animate-spin" /> Đang đồng bộ...
                   </span>
                 ) : (
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Range: {dateRange.startDate.toLocaleDateString()} - {dateRange.endDate.toLocaleDateString()}
+                    Khoảng: {dateRange.startDate.toLocaleDateString()} - {dateRange.endDate.toLocaleDateString()}
                   </p>
                 )}
               </div>
@@ -208,6 +209,15 @@ const AppContent: React.FC = () => {
               </div>
             )}
 
+            {/* About Dashboard */}
+            <button
+              onClick={() => setShowAbout(true)}
+              className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400 transition-colors"
+              title="Tìm hiểu về dashboard"
+            >
+              <HelpCircle size={20} />
+            </button>
+
             {/* Theme Toggle */}
             <button
               onClick={() => setIsDarkMode(!isDarkMode)}
@@ -224,7 +234,7 @@ const AppContent: React.FC = () => {
 
             <div className="flex items-center space-x-2 pl-4 border-l border-slate-200 dark:border-white/10">
               <div className={`w-2 h-2 rounded-full ${isSyncing ? 'bg-blue-500 animate-pulse' : 'bg-primary'} shadow-[0_0_8px_rgba(0,210,106,0.8)]`}></div>
-              <span className="hidden sm:inline text-xs text-primary font-bold tracking-wider">LIVE</span>
+              <span className="hidden sm:inline text-xs text-primary font-bold tracking-wider">TRỰC TIẾP</span>
             </div>
           </div>
         </header>
@@ -237,7 +247,7 @@ const AppContent: React.FC = () => {
                 <div className="absolute inset-0 border-4 border-slate-200 dark:border-white/10 rounded-full"></div>
                 <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
               </div>
-              <p className="text-slate-500 dark:text-slate-400 animate-pulse">Synchronizing HR Nodes...</p>
+              <p className="text-slate-500 dark:text-slate-400 animate-pulse">Đang đồng bộ các nút HR...</p>
             </div>
           ) : (
             <Routes>
@@ -252,19 +262,19 @@ const AppContent: React.FC = () => {
               <Route path="/individual" element={
                 currentUser?.role === 'admin'
                   ? <IndividualView staffList={filteredStaff} metrics={filteredMetrics} loading={loading} isDarkMode={isDarkMode} />
-                  : <div className="text-red-400 p-8">Access Denied: Admins Only</div>
+                  : <div className="text-red-400 p-8 font-bold">Truy cập bị từ chối: Chỉ dành cho Quản trị viên</div>
               } />
               <Route path="/individual/:staffId" element={
                 currentUser?.role === 'admin'
                   ? <IndividualView staffList={filteredStaff} metrics={filteredMetrics} loading={loading} isDarkMode={isDarkMode} />
-                  : <div className="text-red-400 p-8">Access Denied: Admins Only</div>
+                  : <div className="text-red-400 p-8 font-bold">Truy cập bị từ chối: Chỉ dành cho Quản trị viên</div>
               } />
 
               {/* Comparison View */}
               <Route path="/comparison" element={
                 currentUser?.role === 'admin'
                   ? <ComparisonView staffList={filteredStaff} metrics={filteredMetrics} isDarkMode={isDarkMode} />
-                  : <div className="text-red-400 p-8">Access Denied: Admins Only</div>
+                  : <div className="text-red-400 p-8 font-bold">Truy cập bị từ chối: Chỉ dành cho Quản trị viên</div>
               } />
 
               {/* My Dashboard */}
@@ -281,6 +291,63 @@ const AppContent: React.FC = () => {
             </Routes>
           )}
         </div>
+
+        {/* About Dashboard Modal */}
+        {showAbout && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setShowAbout(false)}></div>
+            <div className="relative w-full max-w-xl bg-white dark:bg-[#0f172a] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden animate-in zoom-in duration-300">
+              <div className="p-8">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center">
+                    <Info className="text-primary" size={28} />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold dark:text-white">Về HR 360 Dashboard</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">Hệ thống đánh giá năng lực toàn diện</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <section>
+                    <h4 className="text-sm font-bold uppercase tracking-widest text-primary mb-2">Mục tiêu</h4>
+                    <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                      HR 360 Dashboard được thiết kế để cung cấp cái nhìn 360 độ về hiệu quả làm việc, sự hiện diện và tương tác văn hóa của mỗi nhân sự tại dps.media.
+                    </p>
+                  </section>
+
+                  <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/5">
+                      <div className="flex items-center gap-2 mb-2 text-primary">
+                        <CheckCircle2 size={16} />
+                        <span className="font-bold text-xs uppercase">Dữ liệu thực tế</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">Tổng hợp từ Teams, Lark, Hệ thống đào tạo và các kênh giao tiếp nội bộ.</p>
+                    </div>
+                    <div className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/5">
+                      <div className="flex items-center gap-2 mb-2 text-primary">
+                        <CheckCircle2 size={16} />
+                        <span className="font-bold text-xs uppercase">Minh bạch</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">Mọi chỉ số đều có công thức rõ ràng, giúp lộ trình thăng tiến được công bằng và khách quan.</p>
+                    </div>
+                  </section>
+
+                  <p className="text-xs text-slate-400 text-center italic border-t border-slate-100 dark:border-white/5 pt-6">
+                    Mọi thắc mắc vui lòng liên hệ bộ phận HR để được hỗ trợ tốt nhất.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setShowAbout(false)}
+                  className="mt-8 w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold py-3 rounded-xl hover:opacity-90 transition-all shadow-xl"
+                >
+                  Đã hiểu!
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
