@@ -35,19 +35,20 @@ WITH daily_metrics AS (
   
   UNION ALL
   
-  -- Available minutes from hr_weekly_meeting_log (presence data)
+  -- Available minutes from hr_presence_log (Heartbeat every 5 mins)
   SELECT 
     s."LARK_MAIL" as lark_email,
     s."NAME" as name,
     s."DEPARTMENT" as department,
-    CAST(m."joinDateTime" AS DATE) as activity_date,
+    CAST(p."DATE TIME" AS DATE) as activity_date,
     0 as tasks_done,
     0 as meeting_count,
-    SUM(m."durationInSeconds") / 60 as available_minutes
+    COUNT(*) * 5 as available_minutes
   FROM hr_staff_info s
-  LEFT JOIN hr_weekly_meeting_log m ON LOWER(s."LARK_MAIL") = LOWER(m."emailAddress")
-  WHERE s."ACTIVE" = true
-  GROUP BY s."LARK_MAIL", s."NAME", s."DEPARTMENT", CAST(m."joinDateTime" AS DATE)
+  LEFT JOIN hr_presence_log p ON LOWER(s."LARK_MAIL") = LOWER(p."LARK_MAIL")
+  WHERE s."ACTIVE" = true 
+    AND (p.activity = 'Available' OR p.activity = 'InAMeeting')
+  GROUP BY s."LARK_MAIL", s."NAME", s."DEPARTMENT", CAST(p."DATE TIME" AS DATE)
 )
 SELECT 
   lark_email,

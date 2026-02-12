@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { AggregatedMetrics } from '../types';
 import { Medal, Trophy, Info, Star, Copy, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface LeaderboardViewProps {
   metrics: AggregatedMetrics[];
-  onCategoryClick: (metric: keyof AggregatedMetrics) => void;
-  onStaffClick: (staffId: string) => void;
 }
 
-const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onStaffClick }) => {
+const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics }) => {
   const [copied, setCopied] = useState(false);
+  const navigate = useNavigate();
 
   // Sort by Total Rank Score descending
   const sortedMetrics = [...metrics].sort((a, b) => b.total_rank_score - a.total_rank_score);
@@ -33,6 +33,11 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onStaffClick
     navigator.clipboard.writeText(tsvContent);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleStaffClick = (staffId: string) => {
+    navigate(`/individual/${staffId}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -61,7 +66,7 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onStaffClick
         {top3[1] && (
           <div
             className="glass-panel p-6 rounded-2xl border-t-4 border-t-slate-300 flex flex-col items-center transform hover:-translate-y-2 transition-transform cursor-pointer"
-            onClick={() => onStaffClick(top3[1].staffId)}
+            onClick={() => handleStaffClick(top3[1].staffId)}
           >
             <div className="relative mb-4">
               <img src={top3[1].avatarUrl} alt="" className="w-20 h-20 rounded-full border-4 border-slate-300 shadow-lg" />
@@ -80,7 +85,7 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onStaffClick
         {top3[0] && (
           <div
             className="glass-panel p-8 rounded-2xl border-t-4 border-t-yellow-500 flex flex-col items-center transform hover:-translate-y-2 transition-transform cursor-pointer relative z-10 scale-110 shadow-xl bg-gradient-to-b from-yellow-500/10 to-transparent"
-            onClick={() => onStaffClick(top3[0].staffId)}
+            onClick={() => handleStaffClick(top3[0].staffId)}
           >
             <div className="absolute -top-6 text-yellow-500 animate-bounce">
               <Medal size={40} />
@@ -102,7 +107,7 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onStaffClick
         {top3[2] && (
           <div
             className="glass-panel p-6 rounded-2xl border-t-4 border-t-orange-500 flex flex-col items-center transform hover:-translate-y-2 transition-transform cursor-pointer"
-            onClick={() => onStaffClick(top3[2].staffId)}
+            onClick={() => handleStaffClick(top3[2].staffId)}
           >
             <div className="relative mb-4">
               <img src={top3[2].avatarUrl} alt="" className="w-20 h-20 rounded-full border-4 border-orange-500 shadow-lg" />
@@ -128,7 +133,7 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({ metrics, onStaffClick
             <div
               key={item.staffId}
               className="flex items-center p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer"
-              onClick={() => onStaffClick(item.staffId)}
+              onClick={() => handleStaffClick(item.staffId)}
             >
               <div className="w-12 text-center font-bold text-slate-500">#{index + 4}</div>
               <div className="flex-1 flex items-center gap-4">

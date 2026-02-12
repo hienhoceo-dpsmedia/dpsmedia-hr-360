@@ -56,20 +56,14 @@ export const fetchAggregatedMetrics = async (range: DateRange): Promise<Aggregat
     .gte('activity_date', startDateStr)
     .lte('activity_date', endDateStr);
 
-  // FETCH CUMULATIVE Q: Get all Q-related metrics from start of time until range.endDate
-  // This ensures "Life-long learning" and "Creative" points are cumulative.
-  const { data: cumulativeQData, error: qError } = await supabase
-    .from('hr_full_report')
-    .select('lark_email, learning_points, creative_points, training_points, hello_hub, hall_of_fame, innovation_lab')
-    .lte('activity_date', endDateStr);
-
   // FETCH ASSESSMENT DATA
   const { data: assessmentData, error: assessmentError } = await supabase
     .from('hr_year_end_assessment')
-    .select('*');
+    .select('*')
+    .gte('date_voted', startDateStr)
+    .lte('date_voted', endDateStr);
 
   if (reportError) throw reportError;
-  if (qError) throw qError;
   if (assessmentError) console.error('Error fetching assessments:', assessmentError);
 
   const staffList = await fetchStaffList();
@@ -78,7 +72,6 @@ export const fetchAggregatedMetrics = async (range: DateRange): Promise<Aggregat
   const rawData = staffList.map(staff => {
     const staffEmail = normalize(staff.lark_email);
     const staffReport = reportData?.filter(r => normalize(r.lark_email) === staffEmail) || [];
-    const staffCumQ = cumulativeQData?.filter(r => normalize(r.lark_email) === staffEmail) || [];
     const staffAssessment = assessmentData?.find(a => normalize(a.name) === normalize(staff.name));
 
     return {
@@ -90,13 +83,13 @@ export const fetchAggregatedMetrics = async (range: DateRange): Promise<Aggregat
         weeklyMeetings: staffReport.reduce((sum, r) => sum + (r.weekly_meeting_count || 0), 0),
         minutes: staffReport.reduce((sum, r) => sum + (r.available_minutes || 0), 0),
 
-        // Category Q is Cumulative
-        learning: staffCumQ.reduce((sum, r) => sum + (r.learning_points || 0), 0),
-        creative: staffCumQ.reduce((sum, r) => sum + (r.creative_points || 0), 0),
-        training: staffCumQ.reduce((sum, r) => sum + (r.training_points || 0), 0),
-        helloHub: staffCumQ.reduce((sum, r) => sum + (r.hello_hub || 0), 0),
-        hallOfFame: staffCumQ.reduce((sum, r) => sum + (r.hall_of_fame || 0), 0),
-        innovation: staffCumQ.reduce((sum, r) => sum + (r.innovation_lab || 0), 0),
+        // Category Q is NOW Range-Based (Fixed)
+        learning: staffReport.reduce((sum, r) => sum + (r.learning_points || 0), 0),
+        creative: staffReport.reduce((sum, r) => sum + (r.creative_points || 0), 0),
+        training: staffReport.reduce((sum, r) => sum + (r.training_points || 0), 0),
+        helloHub: staffReport.reduce((sum, r) => sum + (r.hello_hub || 0), 0),
+        hallOfFame: staffReport.reduce((sum, r) => sum + (r.hall_of_fame || 0), 0),
+        innovation: staffReport.reduce((sum, r) => sum + (r.innovation_lab || 0), 0),
 
         teamChat: staffReport.reduce((sum, r) => sum + (r.team_chat || 0), 0),
         privateChat: staffReport.reduce((sum, r) => sum + (r.private_chat || 0), 0),

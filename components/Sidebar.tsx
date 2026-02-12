@@ -1,25 +1,24 @@
 import React from 'react';
-import { ViewMode, StaffInfo } from '../types';
-import { LayoutDashboard, Users, Trophy, ChevronRight, BarChart2, UserCheck, LogOut, X } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+import { StaffInfo } from '../types';
+import { LayoutDashboard, Users, Trophy, ChevronRight, BarChart2, X } from 'lucide-react';
 
 interface SidebarProps {
-  currentView: ViewMode;
-  onViewChange: (view: ViewMode) => void;
   currentUser: StaffInfo | null;
   onLogout: () => void;
   isOpen: boolean; // Mobile state
   onClose: () => void; // Mobile action
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, currentUser, onLogout, isOpen, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ currentUser, onLogout, isOpen, onClose }) => {
 
-  const menuItems: { id: ViewMode; label: string; icon: React.ReactNode; adminOnly?: boolean }[] = [
-    // { id: 'my_dashboard', label: 'My Dashboard', icon: <UserCheck size={20} /> }, // Hidden per user request
-    { id: 'leaderboard', label: 'Leaderboard', icon: <Trophy size={20} /> },
-    { id: 'global_ranking', label: 'Global Ranking', icon: <BarChart2 size={20} /> },
+  const menuItems: { path: string; label: string; icon: React.ReactNode; adminOnly?: boolean }[] = [
+    // { path: '/my-dashboard', label: 'My Dashboard', icon: <UserCheck size={20} /> }, // Hidden per user request
+    { path: '/', label: 'Leaderboard', icon: <Trophy size={20} /> },
+    { path: '/global-ranking', label: 'Global Ranking', icon: <BarChart2 size={20} /> },
     // Admin Only Items
-    { id: 'individual', label: 'Staff Management', icon: <Users size={20} />, adminOnly: true },
-    { id: 'comparison', label: 'Comparison', icon: <LayoutDashboard size={20} />, adminOnly: true },
+    { path: '/individual', label: 'Staff Management', icon: <Users size={20} />, adminOnly: true },
+    { path: '/comparison', label: 'Comparison', icon: <LayoutDashboard size={20} />, adminOnly: true },
   ];
 
   // Filter menu based on role
@@ -62,25 +61,27 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, currentUse
         {/* Navigation */}
         <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
           {visibleItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => {
-                onViewChange(item.id);
-                onClose();
-              }}
-              className={`group w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-300 border ${currentView === item.id
-                  ? 'bg-primary/10 text-primary border-primary/20 shadow-[0_0_20px_rgba(0,210,106,0.1)]'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 border-transparent hover:text-slate-900 dark:hover:text-slate-200'
+            <NavLink
+              key={item.path}
+              to={item.path}
+              onClick={onClose}
+              className={({ isActive }) => `group w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-300 border ${isActive
+                ? 'bg-primary/10 text-primary border-primary/20 shadow-[0_0_20px_rgba(0,210,106,0.1)]'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 border-transparent hover:text-slate-900 dark:hover:text-slate-200'
                 }`}
             >
-              <div className="flex items-center space-x-3">
-                <span className={currentView === item.id ? 'text-primary' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'}>
-                  {item.icon}
-                </span>
-                <span className="font-medium text-sm">{item.label}</span>
-              </div>
-              {currentView === item.id && <ChevronRight size={16} className="text-primary" />}
-            </button>
+              {({ isActive }) => (
+                <>
+                  <div className="flex items-center space-x-3">
+                    <span className={isActive ? 'text-primary' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'}>
+                      {item.icon}
+                    </span>
+                    <span className="font-medium text-sm">{item.label}</span>
+                  </div>
+                  {isActive && <ChevronRight size={16} className="text-primary" />}
+                </>
+              )}
+            </NavLink>
           ))}
         </nav>
 

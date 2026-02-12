@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
-import { ViewMode, StaffInfo, AggregatedMetrics, DateRange, Kudos } from './types';
+import { StaffInfo, AggregatedMetrics, DateRange, Kudos } from './types';
 import { fetchStaffList, fetchAggregatedMetrics, fetchCurrentUser, fetchKudos } from './services/dataService';
 import IndividualView from './views/IndividualView';
 import ComparisonView from './views/ComparisonView';
@@ -10,22 +11,18 @@ import MyDashboardView from './views/MyDashboardView';
 import DateRangePicker from './components/DateRangePicker';
 import { Filter, Sun, Moon, Menu, RefreshCw } from 'lucide-react';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<StaffInfo | null>(null);
-  const [currentView, setCurrentView] = useState<ViewMode>('leaderboard'); // Default to Leaderboard per user request
   const [staffList, setStaffList] = useState<StaffInfo[]>([]);
   const [metrics, setMetrics] = useState<AggregatedMetrics[]>([]);
   const [myKudos, setMyKudos] = useState<Kudos[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const location = useLocation();
 
   // UI State
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
-
-  // State for drill-down
-  const [rankingMetric, setRankingMetric] = useState<keyof AggregatedMetrics>('total_tasks_done');
-  const [selectedStaffId, setSelectedStaffId] = useState<string | undefined>(undefined);
 
   // Filters
   const [selectedDept, setSelectedDept] = useState<string>('All');
@@ -81,18 +78,6 @@ const App: React.FC = () => {
     initData();
   }, [dateRange]); // Refetch when dateRange changes
 
-  const handleDrillDown = (metric: keyof AggregatedMetrics) => {
-    setRankingMetric(metric);
-    setCurrentView('global_ranking');
-  };
-
-  const handleStaffClick = (staffId: string) => {
-    setSelectedStaffId(staffId);
-    setCurrentView('individual');
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   const handleLogout = () => {
     alert("Logged out (Simulation)");
     window.location.reload();
@@ -107,51 +92,20 @@ const App: React.FC = () => {
     ? staffList
     : staffList.filter(s => s.department === selectedDept);
 
-  const renderContent = () => {
-    if (!currentUser) return <div>Initializing...</div>;
-
-    switch (currentView) {
-      case 'my_dashboard':
-        const myMetrics = metrics.find(m => m.staffId === currentUser.id);
-        if (!myMetrics) return <div>Data not found for current user.</div>;
-        return <MyDashboardView metrics={myMetrics} kudos={myKudos} />;
-
-      case 'individual':
-        if (currentUser.role !== 'admin') return <div className="text-red-400 p-8">Access Denied: Admins Only</div>;
-        return <IndividualView staffList={filteredStaff} metrics={filteredMetrics} loading={loading} isDarkMode={isDarkMode} initialStaffId={selectedStaffId} />;
-
-      case 'comparison':
-        if (currentUser.role !== 'admin') return <div className="text-red-400 p-8">Access Denied: Admins Only</div>;
-        return <ComparisonView staffList={filteredStaff} metrics={filteredMetrics} isDarkMode={isDarkMode} />;
-
-      case 'leaderboard':
-        return <LeaderboardView metrics={filteredMetrics} onCategoryClick={handleDrillDown} onStaffClick={handleStaffClick} />;
-
-      case 'global_ranking':
-        return <GlobalRankingView metrics={filteredMetrics} initialMetric={rankingMetric} onStaffClick={handleStaffClick} />;
-
-      default:
-        return <div>View not found</div>;
-    }
-  };
-
   const departments = ['All', 'Product', 'Engineering', 'Marketing', 'Sales', 'HR'];
 
   const getHeaderTitle = () => {
-    switch (currentView) {
-      case 'my_dashboard': return 'My Overview';
-      case 'individual': return 'Staff Management';
-      case 'comparison': return 'Metric Comparison';
-      case 'global_ranking': return 'Metric Deep Dive';
-      default: return 'Ranking Board';
-    }
+    const path = location.pathname;
+    if (path === '/my-dashboard') return 'My Overview';
+    if (path.startsWith('/individual')) return 'Staff Management';
+    if (path === '/comparison') return 'Metric Comparison';
+    if (path.startsWith('/global-ranking')) return 'Metric Deep Dive';
+    return 'Ranking Board';
   };
 
   return (
     <div className="font-sans antialiased text-slate-900 dark:text-slate-200 bg-slate-50 dark:bg-[#0a0e17] transition-colors duration-500">
       <Sidebar
-        currentView={currentView}
-        onViewChange={setCurrentView}
         currentUser={currentUser}
         onLogout={handleLogout}
         isOpen={isSidebarOpen}
@@ -193,7 +147,7 @@ const App: React.FC = () => {
 
           <div className="flex items-center gap-3 md:gap-4">
             {/* Department Filter (Desktop Only) */}
-            {currentView !== 'my_dashboard' && (
+            {location.pathname !== '/my-dashboard' && (
               <div className="hidden md:flex items-center glass px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10">
                 <Filter size={14} className="text-slate-400 mr-2" />
                 <select
@@ -238,11 +192,57 @@ const App: React.FC = () => {
               <p className="text-slate-500 dark:text-slate-400 animate-pulse">Synchronizing HR Nodes...</p>
             </div>
           ) : (
-            renderContent()
+            <Routes>
+              {/* Leaderboard */}
+              <Route path="/" element={<LeaderboardView metrics={filteredMetrics} />} />
+
+              {/* Global Ranking */}
+              <Route path="/global-ranking" element={<GlobalRankingView metrics={filteredMetrics} />} />
+              <Route path="/global-ranking/:metric" element={<GlobalRankingView metrics={filteredMetrics} />} />
+
+              {/* Individual View */}
+              <Route path="/individual" element={
+                currentUser?.role === 'admin'
+                  ? <IndividualView staffList={filteredStaff} metrics={filteredMetrics} loading={loading} isDarkMode={isDarkMode} />
+                  : <div className="text-red-400 p-8">Access Denied: Admins Only</div>
+              } />
+              <Route path="/individual/:staffId" element={
+                currentUser?.role === 'admin'
+                  ? <IndividualView staffList={filteredStaff} metrics={filteredMetrics} loading={loading} isDarkMode={isDarkMode} />
+                  : <div className="text-red-400 p-8">Access Denied: Admins Only</div>
+              } />
+
+              {/* Comparison View */}
+              <Route path="/comparison" element={
+                currentUser?.role === 'admin'
+                  ? <ComparisonView staffList={filteredStaff} metrics={filteredMetrics} isDarkMode={isDarkMode} />
+                  : <div className="text-red-400 p-8">Access Denied: Admins Only</div>
+              } />
+
+              {/* My Dashboard */}
+              <Route path="/my-dashboard" element={
+                (() => {
+                  const myMetrics = metrics.find(m => m.staffId === currentUser?.id);
+                  if (!myMetrics) return <div>Data not found for current user.</div>;
+                  return <MyDashboardView metrics={myMetrics} kudos={myKudos} />;
+                })()
+              } />
+
+              {/* Fallback */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
           )}
         </div>
       </main>
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
   );
 };
 
