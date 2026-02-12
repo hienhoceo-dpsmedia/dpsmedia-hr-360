@@ -63,13 +63,18 @@ const MyDashboardView: React.FC<MyDashboardViewProps> = ({ metrics, kudos }) => 
             Chào mừng bạn đến với bảng điều khiển tăng trưởng cá nhân. Theo dõi tác động của bạn, ăn mừng các chiến thắng và xem những gì tiếp theo cho sự nghiệp của bạn tại dps.media.
           </p>
 
-          <div className="flex flex-wrap gap-4 mt-6">
+          <div className="flex flex-wrap items-center gap-4 mt-6">
             <button className="flex items-center gap-2 bg-primary text-black px-4 py-2 rounded-lg font-bold text-sm hover:bg-green-400 transition-colors shadow-[0_0_15px_rgba(0,210,106,0.3)]">
               <TrendingUp size={16} /> Xem lộ trình phát triển
             </button>
             <button className="flex items-center gap-2 bg-white/50 dark:bg-white/5 text-slate-900 dark:text-white px-4 py-2 rounded-lg font-bold text-sm border border-slate-200 dark:border-white/10 hover:bg-white/80 dark:hover:bg-white/10 transition-colors">
               <FileText size={16} /> Phiếu lương của tôi
             </button>
+
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full animate-pulse-subtle">
+              <AlertCircle size={14} className="text-blue-400" />
+              <span className="text-[10px] text-blue-300 font-medium">Lưu ý: Chỉ số Công việc & Online cập nhật Real-time. Các chỉ số khác trễ 7 ngày.</span>
+            </div>
           </div>
         </div>
       </div>
@@ -117,19 +122,19 @@ const MyDashboardView: React.FC<MyDashboardViewProps> = ({ metrics, kudos }) => 
               title="Sự hiện diện"
               value={metrics.cat_a_score}
               subValue="/100"
-              icon={<InfoTooltip text="Tính dựa trên thời gian online thực tế so với tiêu chuẩn 160h/tháng." />}
+              icon={<InfoTooltip text="Tính dựa trên thời gian online thực tế (Real-time) so với tiêu chuẩn 160h/tháng." />}
             />
             <KPICard
               title="Hiệu suất"
               value={metrics.cat_p_score}
               subValue="/100"
-              icon={<InfoTooltip text="Điểm trọng số giữa Hoàn thành công việc (70%) và Khối lượng giao tiếp (30%)." />}
+              icon={<InfoTooltip text="Điểm trọng số giữa Hoàn thành công việc (Real-time) và Khối lượng giao tiếp (Trễ 7 ngày)." />}
             />
             <KPICard
               title="Chất lượng"
               value={metrics.cat_q_score}
               subValue="/100"
-              icon={<InfoTooltip text="Điểm từ các khóa học và các ý tưởng cải tiến được gửi lên." />}
+              icon={<InfoTooltip text="Điểm từ các khóa học và các ý tưởng cải tiến (Trễ 7 ngày)." />}
             />
           </div>
 

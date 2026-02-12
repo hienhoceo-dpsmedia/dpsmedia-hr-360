@@ -1,26 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { AggregatedMetrics, StaffInfo } from '../types';
+import { useNavigate, useParams } from 'react-router-dom';
 import ActivityHeatmap from '../components/ActivityHeatmap';
-import { Download, Trophy, Star, Activity } from 'lucide-react';
+import { Download, Trophy, Star, Activity, AlertCircle } from 'lucide-react';
 
 interface IndividualViewProps {
   staffList: StaffInfo[];
   metrics: AggregatedMetrics[];
   loading: boolean;
   isDarkMode: boolean;
-  initialStaffId?: string;
 }
 
-const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loading, isDarkMode, initialStaffId }) => {
-  const [selectedStaffId, setSelectedStaffId] = useState<string>(initialStaffId || '');
+const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loading, isDarkMode }) => {
+  const { staffId } = useParams<{ staffId: string }>();
+  const navigate = useNavigate();
+  const [selectedStaffId, setSelectedStaffId] = useState<string>(staffId || '');
 
   useEffect(() => {
-    if (initialStaffId) {
-      setSelectedStaffId(initialStaffId);
+    if (staffId) {
+      setSelectedStaffId(staffId);
     } else if (staffList.length > 0 && !selectedStaffId) {
-      setSelectedStaffId(staffList[0].id);
+      // If no staffId in URL, default to first staff and update URL
+      const firstStaffId = staffList[0].id;
+      setSelectedStaffId(firstStaffId);
+      navigate(`/individual/${firstStaffId}`, { replace: true });
     }
-  }, [staffList, selectedStaffId, initialStaffId]);
+  }, [staffId, staffList, navigate, selectedStaffId]);
 
   if (loading) return <div className="text-slate-900 dark:text-white font-medium">Đang tải dữ liệu...</div>;
 
@@ -96,7 +101,7 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
           <select
             className="bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-primary focus:border-primary block p-2.5 w-full sm:min-w-[200px]"
             value={selectedStaffId}
-            onChange={(e) => setSelectedStaffId(e.target.value)}
+            onChange={(e) => navigate(`/individual/${e.target.value}`)}
           >
             {staffList.map(staff => (
               <option key={staff.id} value={staff.id}>{staff.name}</option>
@@ -198,10 +203,17 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
                         const value = currentMetrics[config.valueKey] as number;
                         const rank = metricValues.indexOf(value) + 1; // Simplistic rank (first instance)
 
+                        const isRealtime = key === 'tasks' || key === 'minutes';
+
                         return (
                           <tr key={key} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                             <td className="px-6 py-4 font-semibold text-white">
-                              {config.label}
+                              <div className="flex items-center gap-2">
+                                {config.label}
+                                <span className={`text-[8px] px-1.5 py-0.5 rounded uppercase font-bold tracking-tighter ${isRealtime ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20' : 'bg-blue-500/20 text-blue-400 border border-blue-500/20'}`}>
+                                  {isRealtime ? 'Real-time' : 'Trễ 7 ngày'}
+                                </span>
+                              </div>
                             </td>
                             <td className="px-6 py-4 text-right text-slate-300">
                               {value.toLocaleString()} <span className="text-[10px] text-slate-500">{config.unit}</span>

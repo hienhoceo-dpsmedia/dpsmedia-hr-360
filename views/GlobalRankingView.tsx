@@ -1,6 +1,6 @@
 import React from 'react';
 import { AggregatedMetrics } from '../types';
-import { BarChart2, Filter, Copy, Check } from 'lucide-react';
+import { BarChart2, Filter, Copy, Check, AlertCircle } from 'lucide-react';
 
 interface GlobalRankingViewProps {
   metrics: AggregatedMetrics[];
@@ -202,6 +202,10 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
             Xếp hạng chung
           </h2>
           <p className="text-slate-400 text-sm mt-1">So sánh dựa trên 15 chỉ số xếp hạng</p>
+          <div className="flex items-center gap-2 mt-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full w-fit">
+            <AlertCircle size={12} className="text-blue-400" />
+            <span className="text-[10px] text-blue-300 font-medium whitespace-nowrap">Lưu ý: Công việc & Online cập nhật Real-time. Các chỉ số khác trễ 7 ngày.</span>
+          </div>
         </div>
 
         <div className="flex items-center glass px-4 py-2 rounded-lg border border-white/10">

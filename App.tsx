@@ -186,9 +186,17 @@ const AppContent: React.FC = () => {
                     <RefreshCw size={10} className="animate-spin" /> Đang đồng bộ...
                   </span>
                 ) : (
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Khoảng: {dateRange.startDate.toLocaleDateString()} - {dateRange.endDate.toLocaleDateString()}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Khoảng: {dateRange.startDate.toLocaleDateString()} - {dateRange.endDate.toLocaleDateString()}
+                    </p>
+                    <div className="group relative">
+                      <HelpCircle size={12} className="text-slate-400 cursor-help" />
+                      <div className="absolute top-full left-0 mt-2 w-48 p-2 bg-slate-900 text-[10px] text-white rounded-lg shadow-xl border border-white/10 hidden group-hover:block z-50">
+                        Chỉ số Công việc & Online được cập nhật Real-time. Các chỉ số khác cập nhật trễ 7 ngày.
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
