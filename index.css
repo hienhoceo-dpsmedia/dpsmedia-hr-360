@@ -1,4 +1,3 @@
-
 /* Global Styles */
 @layer base {
   body {
@@ -19,8 +18,15 @@
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
@@ -28,8 +34,15 @@
 }
 
 @keyframes pulse-subtle {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
 }
 
 .animate-pulse-subtle {
@@ -43,4 +56,25 @@
 
 .recharts-tooltip-label {
   @apply font-bold mb-1 !important;
+}
+
+/* Select & Dropdown Styling */
+select {
+  @apply bg-transparent;
+  color-scheme: dark;
+}
+
+select option,
+select optgroup {
+  background-color: #0f172a;
+  /* bg-slate-900 */
+  color: #f8fafc;
+  /* text-slate-50 */
+}
+
+optgroup {
+  font-weight: bold;
+  font-style: normal;
+  color: #94a3b8;
+  /* text-slate-400 */
 }

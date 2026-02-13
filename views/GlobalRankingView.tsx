@@ -37,8 +37,8 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
         label: 'Công việc hoàn thành',
         unit: 'tasks',
         category: 'Chỉ số',
-        description: 'Tổng số công việc đã hoàn thành trong tháng',
-        rationale: 'Đo mức độ hiệu quả và kết quả công việc hàng tháng.',
+        description: 'Tổng số công việc đã hoàn thành',
+        rationale: 'Đo mức độ hiệu quả và kết quả công việc.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/5d0b4520-0bb3-4887-a654-4d49f55ffe57'
       },
       {
@@ -46,7 +46,7 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
         label: 'Họp định kỳ',
         unit: 'mtgs',
         category: 'Chỉ số',
-        description: 'Số lượng cuộc họp bạn tham gia trong tháng (từ Teams)',
+        description: 'Số lượng cuộc họp bạn tham gia (từ Teams)',
         rationale: 'Cho biết mức độ bạn tham gia vào quá trình ra quyết định và thảo luận.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/420c4771-4916-4947-badf-6b81b202d3b6'
       },
@@ -64,7 +64,7 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
         label: 'Thời gian online',
         unit: 'mins',
         category: 'Chỉ số',
-        description: 'Tổng thời gian online trong giờ hành chín',
+        description: 'Tổng thời gian online Teams',
         rationale: 'Đo lường sự hiện diện và sẵn sàng của nhân sự.',
         externalUrl: 'https://meta.dpsmedia.vn/public/question/8f76d289-af5a-4f65-bea5-f540c90da203'
       },
@@ -204,7 +204,7 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
           <p className="text-slate-400 text-sm mt-1">So sánh dựa trên 15 chỉ số xếp hạng</p>
           <div className="flex items-center gap-2 mt-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full w-fit">
             <AlertCircle size={12} className="text-blue-400" />
-            <span className="text-[10px] text-blue-300 font-medium whitespace-nowrap">Lưu ý: Công việc & Online cập nhật Real-time. Các chỉ số khác trễ 7 ngày.</span>
+            <span className="text-[10px] text-blue-300 font-medium whitespace-nowrap">Lưu ý: Chỉ số Công việc hoàn thành & Thời gian Online cập nhật Real-time. Các chỉ số khác trễ 7 ngày.</span>
           </div>
         </div>
 
@@ -215,29 +215,29 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
             value={selectedMetric}
             onChange={(e) => setSelectedMetric(e.target.value as keyof AggregatedMetrics)}
           >
-            <option value="total_rank_score" className="bg-slate-900 text-emerald-400 font-bold">★ Tổng điểm xếp hạng</option>
+            <option value="total_rank_score" className="text-emerald-400 font-bold">★ Tổng điểm xếp hạng</option>
             <optgroup label="Chỉ số hiệu suất">
-              <option value="total_tasks_done" className="bg-slate-900 text-white">Công việc hoàn thành</option>
-              <option value="available_minutes" className="bg-slate-900 text-white">Thời gian online</option>
-              <option value="weekly_meeting_attendance" className="bg-slate-900 text-white">Họp định kỳ</option>
-              <option value="weekly_meeting_count" className="bg-slate-900 text-white">Số buổi họp</option>
+              <option value="total_tasks_done">Công việc hoàn thành</option>
+              <option value="available_minutes">Thời gian online</option>
+              <option value="weekly_meeting_attendance">Họp định kỳ</option>
+              <option value="weekly_meeting_count">Số buổi họp</option>
             </optgroup>
             <optgroup label="Chỉ số giao tiếp">
-              <option value="team_chat" className="bg-slate-900 text-white">Chat nhóm</option>
-              <option value="private_chat" className="bg-slate-900 text-white">Chat riêng</option>
-              <option value="reply_messages" className="bg-slate-900 text-white">Phản hồi</option>
+              <option value="team_chat">Chat nhóm</option>
+              <option value="private_chat">Chat riêng</option>
+              <option value="reply_messages">Phản hồi</option>
             </optgroup>
             <optgroup label="Phát triển & Văn hóa">
-              <option value="learning_points" className="bg-slate-900 text-white">Điểm học tập</option>
-              <option value="creative_points" className="bg-slate-900 text-white">Điểm sáng tạo</option>
-              <option value="training_points" className="bg-slate-900 text-white">Điểm rèn luyện</option>
-              <option value="hello_hub" className="bg-slate-900 text-white">Hello Hub</option>
-              <option value="hall_of_fame" className="bg-slate-900 text-white">Fame</option>
-              <option value="innovation_lab_ideas" className="bg-slate-900 text-white">Innovation Lab</option>
+              <option value="learning_points">Điểm học tập</option>
+              <option value="creative_points">Điểm sáng tạo</option>
+              <option value="training_points">Điểm rèn luyện</option>
+              <option value="hello_hub">Hello Hub</option>
+              <option value="hall_of_fame">Fame</option>
+              <option value="innovation_lab_ideas">Innovation Lab</option>
             </optgroup>
             <optgroup label="Đánh giá cuối năm">
-              <option value="mostFavorite" className="bg-slate-900 text-white">Yêu thích nhất</option>
-              <option value="mostInfluential" className="bg-slate-900 text-white">Ảnh hưởng nhất</option>
+              <option value="mostFavorite">Yêu thích nhất</option>
+              <option value="mostInfluential">Ảnh hưởng nhất</option>
             </optgroup>
           </select>
         </div>
@@ -248,7 +248,7 @@ const GlobalRankingView: React.FC<GlobalRankingViewProps> = ({ metrics, initialM
         <div className="flex flex-col md:flex-row gap-8">
           <div className="flex-1">
             <h4 className="text-primary font-bold text-sm uppercase tracking-wider mb-2 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold">
+              <span className="px-2 h-6 min-w-[24px] rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold whitespace-nowrap">
                 {currentOption.category}
               </span>
               Giải thích

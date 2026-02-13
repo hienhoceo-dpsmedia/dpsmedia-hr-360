@@ -73,7 +73,7 @@ const MyDashboardView: React.FC<MyDashboardViewProps> = ({ metrics, kudos }) => 
 
             <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full animate-pulse-subtle">
               <AlertCircle size={14} className="text-blue-400" />
-              <span className="text-[10px] text-blue-300 font-medium">Lưu ý: Chỉ số Công việc & Online cập nhật Real-time. Các chỉ số khác trễ 7 ngày.</span>
+              <span className="text-[10px] text-blue-300 font-medium">Lưu ý: Chỉ số Công việc hoàn thành & Thời gian Online cập nhật Real-time. Các chỉ số khác trễ 7 ngày.</span>
             </div>
           </div>
         </div>
@@ -122,7 +122,7 @@ const MyDashboardView: React.FC<MyDashboardViewProps> = ({ metrics, kudos }) => 
               title="Sự hiện diện"
               value={metrics.cat_a_score}
               subValue="/100"
-              icon={<InfoTooltip text="Tính dựa trên thời gian online thực tế (Real-time) so với tiêu chuẩn 160h/tháng." />}
+              icon={<InfoTooltip text="Tính dựa trên thời gian online thực tế (Real-time) so với tiêu chuẩn giờ làm việc." />}
             />
             <KPICard
               title="Hiệu suất"

@@ -49,73 +49,96 @@ export const fetchAggregatedMetrics = async (range: DateRange): Promise<Aggregat
   const startDateStr = format(range.startDate, 'yyyy-MM-dd');
   const endDateStr = format(range.endDate, 'yyyy-MM-dd');
 
-  // Fetch consolidated data from our SQL View
-  const { data: reportData, error: reportError } = await supabase
-    .from('hr_full_report')
-    .select('*')
-    .gte('activity_date', startDateStr)
-    .lte('activity_date', endDateStr);
+  // Parallel fetch for all base data sources
+  const [staffList, { data: reportData }, { data: assessmentData }, { data: presenceLogs }] = await Promise.all([
+    fetchStaffList(),
+    supabase.from('hr_full_report').select('*').gte('activity_date', startDateStr).lte('activity_date', endDateStr),
+    supabase.from('hr_year_end_assessment').select('*').gte('date_voted', startDateStr).lte('date_voted', endDateStr),
+    supabase.from('hr_presence_log').select('LARK_MAIL, "DATE TIME", activity').gte('"DATE TIME"', startDateStr).lte('"DATE TIME"', endDateStr + 'T23:59:59')
+  ]);
 
-  // FETCH ASSESSMENT DATA
-  const { data: assessmentData, error: assessmentError } = await supabase
-    .from('hr_year_end_assessment')
-    .select('*')
-    .gte('date_voted', startDateStr)
-    .lte('date_voted', endDateStr);
+  if (!reportData) throw new Error("Failed to fetch report data");
 
-  if (reportError) throw reportError;
-  if (assessmentError) console.error('Error fetching assessments:', assessmentError);
+  // Pre-process: Group report data by email for O(1) lookup
+  const reportByEmail = new Map<string, any[]>();
+  reportData.forEach(r => {
+    const email = normalize(r.lark_email);
+    if (!reportByEmail.has(email)) reportByEmail.set(email, []);
+    reportByEmail.get(email)!.push(r);
+  });
 
-  const staffList = await fetchStaffList();
+  // Pre-process: Group assessment data by name for O(1) lookup
+  const assessmentByName = new Map<string, any>();
+  assessmentData?.forEach(a => {
+    assessmentByName.set(normalize(a.name), a);
+  });
+
+  // Pre-process: Group presence logs by email for O(1) lookup
+  const presenceByEmail = new Map<string, any[]>();
+  presenceLogs?.forEach((log: any) => {
+    const email = normalize(log.LARK_MAIL);
+    if (!presenceByEmail.has(email)) presenceByEmail.set(email, []);
+    presenceByEmail.get(email)!.push(log);
+  });
 
   // 1. Calculate raw totals for each staff member
   const rawData = staffList.map(staff => {
     const staffEmail = normalize(staff.lark_email);
-    const staffReport = reportData?.filter(r => normalize(r.lark_email) === staffEmail) || [];
-    const staffAssessment = assessmentData?.find(a => normalize(a.name) === normalize(staff.name));
+    const staffReport = reportByEmail.get(staffEmail) || [];
+    const staffAssessment = assessmentByName.get(normalize(staff.name));
 
-    return {
-      staff,
-      report: staffReport,
-      totals: {
-        tasks: staffReport.reduce((sum, r) => sum + (r.tasks_done || 0), 0),
-        meetings: staffReport.reduce((sum, r) => sum + (r.meeting_count || 0), 0),
-        weeklyMeetings: staffReport.reduce((sum, r) => sum + (r.weekly_meeting_count || 0), 0),
-        minutes: staffReport.reduce((sum, r) => sum + (r.available_minutes || 0), 0),
-
-        // Category Q is NOW Range-Based (Fixed)
-        learning: staffReport.reduce((sum, r) => sum + (r.learning_points || 0), 0),
-        creative: staffReport.reduce((sum, r) => sum + (r.creative_points || 0), 0),
-        training: staffReport.reduce((sum, r) => sum + (r.training_points || 0), 0),
-        helloHub: staffReport.reduce((sum, r) => sum + (r.hello_hub || 0), 0),
-        hallOfFame: staffReport.reduce((sum, r) => sum + (r.hall_of_fame || 0), 0),
-        innovation: staffReport.reduce((sum, r) => sum + (r.innovation_lab || 0), 0),
-
-        teamChat: staffReport.reduce((sum, r) => sum + (r.team_chat || 0), 0),
-        privateChat: staffReport.reduce((sum, r) => sum + (r.private_chat || 0), 0),
-        replies: staffReport.reduce((sum, r) => sum + (r.reply_messages || 0), 0),
-        mostFavorite: staffAssessment?.most_favorite || 0,
-        mostInfluential: staffAssessment?.most_influential || 0,
-        messages: 0 // placeholder
-      }
+    const totals = {
+      tasks: 0, meetings: 0, weeklyMeetings: 0, minutes: 0,
+      learning: 0, creative: 0, training: 0, helloHub: 0,
+      hallOfFame: 0, innovation: 0, teamChat: 0, privateChat: 0,
+      replies: 0, mostFavorite: staffAssessment?.most_favorite || 0,
+      mostInfluential: staffAssessment?.most_influential || 0,
+      messages: 0
     };
+
+    staffReport.forEach(r => {
+      totals.tasks += (r.tasks_done || 0);
+      totals.meetings += (r.meeting_count || 0);
+      totals.weeklyMeetings += (r.weekly_meeting_count || 0);
+      totals.minutes += (r.available_minutes || 0);
+      totals.learning += (r.learning_points || 0);
+      totals.creative += (r.creative_points || 0);
+      totals.training += (r.training_points || 0);
+      totals.helloHub += (r.hello_hub || 0);
+      totals.hallOfFame += (r.hall_of_fame || 0);
+      totals.innovation += (r.innovation_lab || 0);
+      totals.teamChat += (r.team_chat || 0);
+      totals.privateChat += (r.private_chat || 0);
+      totals.replies += (r.reply_messages || 0);
+    });
+
+    totals.messages = totals.teamChat + totals.privateChat + totals.replies;
+
+    return { staff, report: staffReport, totals };
   });
 
-  rawData.forEach(item => {
-    item.totals.messages = item.totals.teamChat + item.totals.privateChat + item.totals.replies;
-  });
-
-  // 2. Calculate Company-Wide Averages (Legacy support)
+  // 2. Calculate Company-Wide Averages
   const n = rawData.length || 1;
+  const companySums = rawData.reduce((acc, d) => ({
+    minutes: acc.minutes + d.totals.minutes,
+    weeklyMeetings: acc.weeklyMeetings + d.totals.weeklyMeetings,
+    tasks: acc.tasks + d.totals.tasks,
+    messages: acc.messages + d.totals.messages,
+    meetings: acc.meetings + d.totals.meetings,
+    growth: acc.growth + (d.totals.learning + d.totals.training),
+    innovation: acc.innovation + (d.totals.innovation * 10 + d.totals.creative),
+    culture: acc.culture + (d.totals.helloHub + d.totals.hallOfFame),
+  }), { minutes: 0, weeklyMeetings: 0, tasks: 0, messages: 0, meetings: 0, growth: 0, innovation: 0, culture: 0 });
+
   const companyAvg = {
-    minutes: rawData.reduce((sum, d) => sum + d.totals.minutes, 0) / n,
-    weeklyMeetings: rawData.reduce((sum, d) => sum + d.totals.weeklyMeetings, 0) / n,
-    tasks: rawData.reduce((sum, d) => sum + d.totals.tasks, 0) / n,
-    messages: rawData.reduce((sum, d) => sum + d.totals.messages, 0) / n,
-    meetings: rawData.reduce((sum, d) => sum + d.totals.meetings, 0) / n,
-    growth: rawData.reduce((sum, d) => sum + (d.totals.learning + d.totals.training), 0) / n,
-    innovation: rawData.reduce((sum, d) => sum + (d.totals.innovation * 10 + d.totals.creative), 0) / n,
-    culture: rawData.reduce((sum, d) => sum + (d.totals.helloHub + d.totals.hallOfFame), 0) / n,
+    minutes: companySums.minutes / n,
+    weeklyMeetings: companySums.weeklyMeetings / n,
+    tasks: companySums.tasks / n,
+    messages: companySums.messages / n,
+    meetings: companySums.meetings / n,
+    growth: companySums.growth / n,
+    innovation: companySums.innovation / n,
+    culture: companySums.culture / n,
   };
 
   // --- NEW RANK SCORING SYSTEM (13 Metrics) ---
@@ -172,24 +195,8 @@ export const fetchAggregatedMetrics = async (range: DateRange): Promise<Aggregat
     return Math.min(5.0, Number(((val / avg) * 3.0).toFixed(1)));
   };
 
-  // 2.b FETCH PRESENCE LOGS (Optimized: Single query for the range)
-  const { data: presenceLogs, error: presenceError } = await supabase
-    .from('hr_presence_log')
-    .select('LARK_MAIL, "DATE TIME", activity')
-    .gte('"DATE TIME"', startDateStr) // Use string format for PG timestamp comparison if needed, or ISO
-    .lte('"DATE TIME"', endDateStr + 'T23:59:59'); // Cover full end day
-
-  if (presenceError) {
-    console.error('Error fetching presence logs:', presenceError);
-  }
-
   // Organize logs by email for O(1) lookup
-  const staffPresenceMap: Record<string, RawPresenceLog[]> = {};
-  presenceLogs?.forEach((log: any) => {
-    const email = normalize(log.LARK_MAIL);
-    if (!staffPresenceMap[email]) staffPresenceMap[email] = [];
-    staffPresenceMap[email].push(log);
-  });
+  // (Previously here, now handled at top of function)
 
   // 3. Generate final AggregatedMetrics
   return rawData.map(({ staff, totals, report }) => {
@@ -231,7 +238,7 @@ export const fetchAggregatedMetrics = async (range: DateRange): Promise<Aggregat
 
     // Populate from Presence Logs
     const staffEmail = normalize(staff.lark_email);
-    const logs = staffPresenceMap[staffEmail] || [];
+    const logs = presenceByEmail.get(staffEmail) || [];
 
     logs.forEach(log => {
       // Filter for active work only

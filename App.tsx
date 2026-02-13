@@ -8,9 +8,12 @@ import ComparisonView from './views/ComparisonView';
 import LeaderboardView from './views/LeaderboardView';
 import GlobalRankingView from './views/GlobalRankingView';
 import MyDashboardView from './views/MyDashboardView';
+import IndividualApiView from './views/IndividualApiView';
+import GlobalRankingApiView from './views/GlobalRankingApiView';
+import ApiDocsView from './views/ApiDocsView';
 import DateRangePicker from './components/DateRangePicker';
 import { Filter, Sun, Moon, Menu, RefreshCw, HelpCircle, Info, CheckCircle2 } from 'lucide-react';
-import { parseISO, isValid, format } from 'date-fns';
+import { parseISO, isValid, format, subWeeks, startOfWeek, endOfWeek } from 'date-fns';
 
 const AppContent: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<StaffInfo | null>(null);
@@ -30,7 +33,7 @@ const AppContent: React.FC = () => {
   // Filters
   const [selectedDept, setSelectedDept] = useState<string>('All');
 
-  // Date Logic: Default to "This Month" unless specified in URL
+  // Date Logic: Default to "Last Week" unless specified in URL
   const [dateRange, setDateRange] = useState<DateRange>(() => {
     const startParam = searchParams.get('start');
     const endParam = searchParams.get('end');
@@ -43,8 +46,10 @@ const AppContent: React.FC = () => {
       }
     }
 
-    const end = new Date();
-    const start = new Date(end.getFullYear(), end.getMonth(), 1);
+    const now = new Date();
+    const lastWeek = subWeeks(now, 1);
+    const start = startOfWeek(lastWeek, { weekStartsOn: 1 }); // Monday
+    const end = endOfWeek(lastWeek, { weekStartsOn: 1 });     // Sunday
     return { startDate: start, endDate: end };
   });
 
@@ -105,15 +110,18 @@ const AppContent: React.FC = () => {
     const initData = async () => {
       setLoading(true);
       try {
-        const user = await fetchCurrentUser();
+        // Parallel fetching for performance
+        const [user, staff, aggMetrics] = await Promise.all([
+          fetchCurrentUser(),
+          fetchStaffList(),
+          fetchAggregatedMetrics(dateRange)
+        ]);
+
         setCurrentUser(user);
-
-        const staff = await fetchStaffList();
         setStaffList(staff);
-
-        const aggMetrics = await fetchAggregatedMetrics(dateRange);
         setMetrics(aggMetrics);
 
+        // Fetch kudos separately as it's less critical and depends on user email
         const kudos = await fetchKudos(user.lark_email);
         setMyKudos(kudos);
 
@@ -193,7 +201,7 @@ const AppContent: React.FC = () => {
                     <div className="group relative">
                       <HelpCircle size={12} className="text-slate-400 cursor-help" />
                       <div className="absolute top-full left-0 mt-2 w-48 p-2 bg-slate-900 text-[10px] text-white rounded-lg shadow-xl border border-white/10 hidden group-hover:block z-50">
-                        Chỉ số Công việc & Online được cập nhật Real-time. Các chỉ số khác cập nhật trễ 7 ngày.
+                        <span className="text-[10px] text-blue-300 font-medium">Lưu ý: Chỉ số Công việc hoàn thành & Thời gian Online cập nhật Real-time. Các chỉ số khác trễ 7 ngày.</span>
                       </div>
                     </div>
                   </div>
@@ -212,7 +220,7 @@ const AppContent: React.FC = () => {
                   value={selectedDept}
                   onChange={(e) => setSelectedDept(e.target.value)}
                 >
-                  {departments.map(dept => <option key={dept} value={dept} className="bg-white dark:bg-slate-900">{dept}</option>)}
+                  {departments.map(dept => <option key={dept} value={dept}>{dept}</option>)}
                 </select>
               </div>
             )}
@@ -265,6 +273,7 @@ const AppContent: React.FC = () => {
               {/* Global Ranking */}
               <Route path="/global-ranking" element={<GlobalRankingView metrics={filteredMetrics} />} />
               <Route path="/global-ranking/:metric" element={<GlobalRankingView metrics={filteredMetrics} />} />
+              <Route path="/api-docs" element={<ApiDocsView />} />
 
               {/* Individual View */}
               <Route path="/individual" element={
@@ -277,6 +286,10 @@ const AppContent: React.FC = () => {
                   ? <IndividualView staffList={filteredStaff} metrics={filteredMetrics} loading={loading} isDarkMode={isDarkMode} />
                   : <div className="text-red-400 p-8 font-bold">Truy cập bị từ chối: Chỉ dành cho Quản trị viên</div>
               } />
+
+              {/* API Endpoints (JSON) */}
+              <Route path="/api/individual/:staffId" element={<IndividualApiView metrics={metrics} />} />
+              <Route path="/api/global-ranking/:metric" element={<GlobalRankingApiView metrics={metrics} />} />
 
               {/* Comparison View */}
               <Route path="/comparison" element={

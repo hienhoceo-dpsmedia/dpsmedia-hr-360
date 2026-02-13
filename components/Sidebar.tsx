@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { StaffInfo } from '../types';
-import { LayoutDashboard, Users, Trophy, ChevronRight, BarChart2, X } from 'lucide-react';
+import { LayoutDashboard, Users, Trophy, ChevronRight, BarChart2, X, Terminal } from 'lucide-react';
 
 interface SidebarProps {
   currentUser: StaffInfo | null;
@@ -13,12 +13,12 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ currentUser, onLogout, isOpen, onClose }) => {
 
   const menuItems: { path: string; label: string; icon: React.ReactNode; adminOnly?: boolean }[] = [
-    // { path: '/my-dashboard', label: 'Tổng quan của tôi', icon: <UserCheck size={20} /> }, // Hidden per user request
     { path: '/', label: 'Bảng xếp hạng', icon: <Trophy size={20} /> },
-    { path: '/global-ranking', label: 'Xếp hạng chung', icon: <BarChart2 size={20} /> },
+    { path: '/global-ranking', label: 'Chi tiết theo chỉ số', icon: <BarChart2 size={20} /> },
     // Admin Only Items
-    { path: '/individual', label: 'Quản lý nhân sự', icon: <Users size={20} />, adminOnly: true },
+    { path: '/individual', label: 'Chi tiết theo nhân sự', icon: <Users size={20} />, adminOnly: true },
     { path: '/comparison', label: 'So sánh', icon: <LayoutDashboard size={20} />, adminOnly: true },
+    { path: '/api-docs', label: 'Tài liệu API', icon: <Terminal size={20} /> },
   ];
 
   // Filter menu based on role

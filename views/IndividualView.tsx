@@ -36,9 +36,6 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
   const sortedMetrics = [...metrics].sort((a, b) => b.total_rank_score - a.total_rank_score);
   const globalRank = sortedMetrics.findIndex(m => m.staffId === selectedStaffId) + 1;
 
-  const handleExport = () => {
-    alert("Exporting PDF Report for " + currentMetrics.staffName);
-  };
 
   // Helper to get metric label
   const getLabel = (key: string) => {
@@ -108,13 +105,6 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
             ))}
           </select>
 
-          <button
-            onClick={handleExport}
-            className="flex items-center justify-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2.5 rounded-lg font-bold hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors w-full sm:w-auto"
-          >
-            <Download size={18} />
-            <span>Xuất báo cáo</span>
-          </button>
         </div>
       </div>
 
@@ -158,9 +148,15 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
         {/* Metrics List full-width */}
         <div className="lg:col-span-12">
           <div className="glass-panel rounded-2xl overflow-hidden">
-            <div className="p-4 border-b border-white/5 bg-slate-900/50 flex items-center gap-2">
-              <Activity size={18} className="text-primary" />
-              <h3 className="text-lg font-bold text-white">Chi tiết hiệu suất (15 chỉ số)</h3>
+            <div className="p-4 border-b border-white/5 bg-slate-900/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <Activity size={18} className="text-primary" />
+                <h3 className="text-lg font-bold text-white">Chi tiết hiệu suất (15 chỉ số)</h3>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full w-fit">
+                <AlertCircle size={12} className="text-blue-400" />
+                <span className="text-[10px] text-blue-300 font-medium">Lưu ý: Chỉ số Công việc hoàn thành & Thời gian Online cập nhật Real-time. Các chỉ số khác trễ 7 ngày.</span>
+              </div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left">
@@ -173,7 +169,16 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
                   </tr>
                 </thead>
                 <tbody>
-                  {currentMetrics.rank_score_breakdown ? (() => {
+                  {(() => {
+                    const breakdown = currentMetrics.rank_score_breakdown;
+                    if (!breakdown) return (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
+                          Chưa có dữ liệu xếp hạng chi tiết.
+                        </td>
+                      </tr>
+                    );
+
                     const mapping: Record<string, { label: string, valueKey: keyof AggregatedMetrics, unit: string }> = {
                       tasks: { label: 'Công việc hoàn thành', valueKey: 'total_tasks_done', unit: 'tasks' },
                       meetings: { label: 'Họp định kỳ', valueKey: 'weekly_meeting_attendance', unit: 'mtgs' },
@@ -192,28 +197,27 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
                       mostInfluential: { label: 'Có sức ảnh hưởng nhất', valueKey: 'mostInfluential', unit: 'votes' }
                     };
 
-                    return (Object.entries(currentMetrics.rank_score_breakdown) as [keyof typeof mapping, number][])
+                    // Pre-calculate all metric ranks to avoid O(N^2) in render
+                    const metricRanks: Record<string, number> = {};
+                    Object.values(mapping).forEach(config => {
+                      const values = metrics.map(m => m[config.valueKey] as number).sort((a, b) => b - a);
+                      const myValue = currentMetrics[config.valueKey] as number;
+                      metricRanks[config.valueKey] = values.indexOf(myValue) + 1;
+                    });
+
+                    return (Object.entries(breakdown) as [keyof typeof mapping, number][])
                       .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
                       .map(([key, score]) => {
                         const config = mapping[key];
                         if (!config) return null;
 
-                        // Calculate Rank on the fly
-                        const metricValues = metrics.map(m => m[config.valueKey] as number).sort((a, b) => b - a);
                         const value = currentMetrics[config.valueKey] as number;
-                        const rank = metricValues.indexOf(value) + 1; // Simplistic rank (first instance)
-
-                        const isRealtime = key === 'tasks' || key === 'minutes';
+                        const rank = metricRanks[config.valueKey];
 
                         return (
                           <tr key={key} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                             <td className="px-6 py-4 font-semibold text-white">
-                              <div className="flex items-center gap-2">
-                                {config.label}
-                                <span className={`text-[8px] px-1.5 py-0.5 rounded uppercase font-bold tracking-tighter ${isRealtime ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20' : 'bg-blue-500/20 text-blue-400 border border-blue-500/20'}`}>
-                                  {isRealtime ? 'Real-time' : 'Trễ 7 ngày'}
-                                </span>
-                              </div>
+                              {config.label}
                             </td>
                             <td className="px-6 py-4 text-right text-slate-300">
                               {value.toLocaleString()} <span className="text-[10px] text-slate-500">{config.unit}</span>
@@ -230,13 +234,7 @@ const IndividualView: React.FC<IndividualViewProps> = ({ staffList, metrics, loa
                           </tr>
                         );
                       });
-                  })() : (
-                    <tr>
-                      <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
-                        Chưa có dữ liệu xếp hạng chi tiết.
-                      </td>
-                    </tr>
-                  )}
+                  })()}
                 </tbody>
               </table>
             </div>
